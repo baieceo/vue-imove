@@ -1,0 +1,80 @@
+.guideContainer {
+  height: 650px;
+}
+
+.guideContainer ::v-deep .tabPane {
+  height: 600px;
+  overflow-y: auto;
+  line-height: 1.5715;
+}
+
+.guideContainer ::v-deep .tabPane::-webkit-scrollbar {
+  width: 0;
+}
+
+.guideContainer ::v-deep .tabPane h1,
+.guideContainer ::v-deep .tabPane h2,
+.guideContainer ::v-deep .tabPane h3,
+.guideContainer ::v-deep .tabPane h4,
+.guideContainer ::v-deep .tabPane h5,
+.guideContainer ::v-deep .tabPane h6 {
+  margin-bottom: .5em;
+  font-weight: 500;
+}
+
+.guideContainer ::v-deep .tabPane h2 {
+  font-size: 1.5em;
+}
+
+.guideContainer ::v-deep .tabPane h3 {
+  display: block;
+  font-size: 1.17em;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+}
+
+.guideContainer ::v-deep .tabPane ol,
+.guideContainer ::v-deep .tabPane ul,
+.guideContainer ::v-deep .tabPane dl {
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
+.guideContainer ::v-deep .tabPane ol {
+  display: block;
+  list-style-type: decimal;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  padding-inline-start: 40px;
+}
+
+.guideContainer ::v-deep .tabPane ol li {
+  list-style-type: decimal;
+}
+
+.guideContainer ::v-deep .tabPane a {
+  color: #1890ff;
+}
+
+.guideContainer ::v-deep .tabPane p {
+  margin-bottom: 1em;
+}
+
+.guideContainer ::v-deep .tabPane img {
+  margin: 10px 0;
+}
+
+.guideContainer ::v-deep .tabPane pre {
+  color: #d4deec;
+  font-size: 14px;
+  line-height: 20px;
+  padding: 10px 10px;
+  background-color: #001628;
+  border-radius: 3px;
+  border: 1px solid #00070e;
+  font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}

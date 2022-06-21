@@ -5,19 +5,24 @@
 yarn install
 ```
 
+### Install imove-cli
+```
+yarn global add @imove/cli
+```
+
+### Run imove-cli
+```
+imove -d
+```
+
 ### Compiles and hot-reloads for development
 ```
 yarn serve
 ```
 
-### Compiles and minifies for production
+### Open Browser
 ```
-yarn build
-```
-
-### Lints and fixes files
-```
-yarn lint
+http://localhost:8080/
 ```
 
 ### Customize configuration

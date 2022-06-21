@@ -1,0 +1,30 @@
+.container {
+    width: 100%;
+    padding: 0 10px;
+    box-sizing: border-box;
+    background: #fff;
+    height: 100%;
+     :global {
+        .ant-collapse>.ant-collapse-item>.ant-collapse-header {
+            padding: 10px 16px 10px 40px;
+        }
+    }
+    .collapse {
+        border: 0;
+        border-radius: 0;
+    }
+}
+
+.panelContent {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    .cellWrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 8px;
+        width: 60px;
+        height: 60px;
+    }
+}

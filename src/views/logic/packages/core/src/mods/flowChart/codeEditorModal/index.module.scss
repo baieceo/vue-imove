@@ -1,0 +1,11 @@
+.depsInfoModalContent {
+    padding-top: 20px;
+}
+
+.modal {
+     ::v-deep {
+        .el-dialog__body {
+            padding: 0 0 10px;
+        }
+    }
+}

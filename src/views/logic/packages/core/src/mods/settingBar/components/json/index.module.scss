@@ -1,0 +1,98 @@
+.container {
+    margin-top: 20px;
+    .header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        .titleText {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+    }
+}
+
+.editModal {
+     ::v-deep {
+        .el-dialog__body {
+            padding: 10px 20px;
+        }
+        .configInput {
+            height: 100%;
+        }
+        .configInputCodeEditor {
+            height: 100%;
+        }
+        .depInputCodeEditor {
+            height: 50vh;
+        }
+    }
+    .tabPane {
+        .form {
+            height: 100%;
+            margin: 0 0;
+        }
+        .logicFormGenerator {
+            height: 100%;
+            border-bottom: 1px solid #EBEEF5;
+             ::v-deep {
+                .logicFormGeneratorContainer,
+                .logicFormGeneratorContentWrap {
+                    height: 100%;
+                }
+                .logicFormGeneratorToolBarBoxClass {
+                    padding-left: 20px;
+                }
+                .logicFormGeneratorContentBox {
+                    display: flex;
+                    flex-direction: column;
+                }
+                .logicFormGeneratorContentFormClass {
+                    flex: 1;
+                    overflow-y: auto;
+                }
+                .logicFormGeneratorRightForm {
+                    padding-right: 20px;
+                    .el-tabs__content {
+                        padding-top: 20px;
+                    }
+                    .el-form {
+                        padding-right: 0;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.editModalConfig {
+     ::v-deep {
+        .el-dialog {
+            display: flex;
+            flex-direction: column;
+        }
+        .el-dialog__body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 10px 0;
+            >.el-tabs {
+                display: flex;
+                flex: 1;
+                flex-direction: column;
+                overflow: hidden;
+                >.el-tabs__content {
+                    flex: 1;
+                    >.el-tab-pane {
+                        height: 100%;
+                        overflow: hidden;
+                    }
+                }
+            }
+        }
+    }
+    .logicFormGeneratorContentToolBar {
+        display: flex;
+        padding: 5px 10px;
+    }
+}

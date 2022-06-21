@@ -1,0 +1,42 @@
+.itemHeader {
+  margin-bottom: 8px;
+}
+
+.itemHeader .itemTitleText {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.itemHeader .itemDescText {
+  margin-left: 5px;
+  font-size: 12px;
+  color: #999;
+}
+
+.itemForm ::v-deep .el-form-item {
+  margin-bottom: 8px;
+}
+
+.itemForm .itemFormNode {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.itemForm .itemFormNode ::v-deep .el-form-item {
+  display: flex;
+  margin-right: 10px;
+}
+
+.itemForm .itemFormNode ::v-deep .el-form-item__content {
+  flex: 1;
+}
+
+:global .ant-tabs-nav {
+  margin-bottom: 5px;
+}
+
+:global .ant-form-item {
+  margin-bottom: 8px;
+}

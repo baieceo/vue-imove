@@ -1,0 +1,105 @@
+.container {
+  margin-top: 20px;
+}
+
+.container .header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.container .header .titleText {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.editModal ::v-deep .el-dialog__body {
+  padding: 10px 20px;
+}
+
+.editModal ::v-deep .configInput {
+  height: 100%;
+}
+
+.editModal ::v-deep .configInputCodeEditor {
+  height: 100%;
+}
+
+.editModal ::v-deep .depInputCodeEditor {
+  height: 50vh;
+}
+
+.editModal .tabPane .form {
+  height: 100%;
+  margin: 0 0;
+}
+
+.editModal .tabPane .logicFormGenerator {
+  height: 100%;
+  border-bottom: 1px solid #EBEEF5;
+}
+
+.editModal .tabPane .logicFormGenerator ::v-deep .logicFormGeneratorContainer,
+.editModal .tabPane .logicFormGenerator ::v-deep .logicFormGeneratorContentWrap {
+  height: 100%;
+}
+
+.editModal .tabPane .logicFormGenerator ::v-deep .logicFormGeneratorToolBarBoxClass {
+  padding-left: 20px;
+}
+
+.editModal .tabPane .logicFormGenerator ::v-deep .logicFormGeneratorContentBox {
+  display: flex;
+  flex-direction: column;
+}
+
+.editModal .tabPane .logicFormGenerator ::v-deep .logicFormGeneratorContentFormClass {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.editModal .tabPane .logicFormGenerator ::v-deep .logicFormGeneratorRightForm {
+  padding-right: 20px;
+}
+
+.editModal .tabPane .logicFormGenerator ::v-deep .logicFormGeneratorRightForm .el-tabs__content {
+  padding-top: 20px;
+}
+
+.editModal .tabPane .logicFormGenerator ::v-deep .logicFormGeneratorRightForm .el-form {
+  padding-right: 0;
+}
+
+.editModalConfig ::v-deep .el-dialog {
+  display: flex;
+  flex-direction: column;
+}
+
+.editModalConfig ::v-deep .el-dialog__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 10px 0;
+}
+
+.editModalConfig ::v-deep .el-dialog__body > .el-tabs {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.editModalConfig ::v-deep .el-dialog__body > .el-tabs > .el-tabs__content {
+  flex: 1;
+}
+
+.editModalConfig ::v-deep .el-dialog__body > .el-tabs > .el-tabs__content > .el-tab-pane {
+  height: 100%;
+  overflow: hidden;
+}
+
+.editModalConfig .logicFormGeneratorContentToolBar {
+  display: flex;
+  padding: 5px 10px;
+}
