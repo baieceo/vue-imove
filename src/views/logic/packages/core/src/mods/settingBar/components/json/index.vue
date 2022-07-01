@@ -130,6 +130,9 @@
         this.selectedCell && this.selectedCell.setData({
           configData,
           configSchema
+        }, {
+          deep: true,
+          overwrite: true
         });
       }
     },
