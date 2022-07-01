@@ -128,6 +128,7 @@
         configSchema = ''
       }) {
         this.selectedCell && this.selectedCell.setData({
+          ...this.selectedCell.getData(),
           configData,
           configSchema
         }, {
