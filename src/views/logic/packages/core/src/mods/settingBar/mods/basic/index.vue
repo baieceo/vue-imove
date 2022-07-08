@@ -2,7 +2,7 @@
   <div class="container">
     <el-card>
       <div slot="header">名称</div>
-      <Input name="label" title="节点显示名称" :value="label" @value-change="onChangeLabel" />
+      <Input name="label" :title="nodeTitle" :value="label" @value-change="onChangeLabel" />
 
       <template v-if="selectedCell.shape === 'imove-start'">
         <div class="input">
@@ -11,9 +11,12 @@
       </template>
     </el-card>
 
-    <Json name="dependencies" title="依赖" :value="dependencies" :isConfig="false" @value-change="onChangeDependencies" />
-    <Json name="configSchema" title="投放配置" :selectedCell="selectedCell" :value="configSchema" :isConfig="true"
-      @value-change="onChangeConfigSchema" />
+    <template v-if="selectedCell.shape !== 'edge'">
+      <Json name="dependencies" title="依赖" :value="dependencies" :isConfig="false"
+        @value-change="onChangeDependencies" />
+      <Json name="configSchema" title="投放配置" :selectedCell="selectedCell" :value="configSchema" :isConfig="true"
+        @value-change="onChangeConfigSchema" />
+    </template>
   </div>
 </template>
 
@@ -53,6 +56,10 @@
           label
         } = this.data || {};
 
+        if (this.selectedCell.shape === 'edge') {
+          return this.selectedCell.getLabelAt(0) ? this.selectedCell.getLabelAt(0).attrs.label.text : '';
+        }
+
         return label;
       },
       trigger() {
@@ -76,6 +83,13 @@
 
         return configSchema;
       },
+      nodeTitle() {
+        if (this.selectedCell.shape === 'edge') {
+          return '标签显示名称';
+        } else {
+          return '节点显示名称';
+        }
+      }
     },
     created() {
       this.flowChart.on('settingBar.basicPanel:forceUpdate', this.handler);
@@ -99,12 +113,17 @@
         });
       },
       onChangeLabel(val) {
-        this.commonChange('label', val);
-        this.selectedCell.setAttrs({
-          label: {
-            text: val
-          }
-        });
+        if (this.selectedCell.shape === 'edge') {
+          this.selectedCell.setLabelAt(0, val);
+        } else {
+          this.commonChange('label', val);
+
+          this.selectedCell.setAttrs({
+            label: {
+              text: val
+            }
+          });
+        }
       },
       onChangeConfigSchema(val) {
         this.commonChange('configSchema', val);

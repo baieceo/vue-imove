@@ -57,7 +57,8 @@
         let nodes = [];
 
         if (this.flowChart) {
-          nodes = this.flowChart.getSelectedCells().filter((v) => v.shape !== 'edge');
+          // nodes = this.flowChart.getSelectedCells().filter((v) => v.shape !== 'edge');
+          nodes = this.flowChart.getSelectedCells();
         }
 
         return nodes;
