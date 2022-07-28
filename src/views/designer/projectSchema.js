@@ -11,8 +11,7 @@ export default {
     ],
     componentsTree: [{
         componentName: 'Page',
-        // id: 'node_dockcviv8fo1',
-        id: 'node_1',
+        id: 'node_dockcviv8fo1',
         props: {
             style: {
                 height: '100%',

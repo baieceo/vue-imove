@@ -2,26 +2,85 @@
     <el-container :class="$style.pageContainer">
         <el-header :class="$style.pageHeader">页面设计</el-header>
         <el-container>
-            <el-aside :class="$style.materials" width="80px">
-                <draggable v-model="materials" :group="{ name: 'materials', pull: false, put: false }" :sort="false"
-                    :clone="onCloneMaterial" @end="onDraggableEnd">
-                    <div v-for="material in materials" :key="material.componentName" :class="$style.materialItem">
-                        <div :class="$style.materialIcon" :style="{backgroundImage: `url(${material.icon})`}" />
-                        {{material.title}}
-                    </div>
-                </draggable>
+            <el-aside :class="$style.materials" width="300px">
+                <el-tabs tab-position="left" style="height: 100%">
+                    <!-- 物料列表 start -->
+                    <el-tab-pane label="组件">
+                        <el-tooltip slot="label" effect="dark" content="组件" placement="right">
+                            <i class="el-icon-box"></i>
+                        </el-tooltip>
+                        <draggable :list="materials" :group="{ name: 'materials', pull: false, put: false }"
+                            :sort="false" :clone="onCloneMaterial" @end="onDraggableEnd">
+                            <div v-for="material in materials" :key="material.componentName"
+                                :class="$style.materialItem">
+                                <div :class="$style.materialIcon"
+                                    :style="{backgroundImage: `url(${material.screenshot})`}" />
+                                {{material.title}}
+                            </div>
+                        </draggable>
+                    </el-tab-pane>
+                    <!-- 物料列表 end -->
+
+                    <!-- 大纲树 start -->
+                    <el-tab-pane>
+                        <el-tooltip slot="label" effect="dark" content="大纲" placement="right">
+                            <i class="el-icon-s-unfold"></i>
+                        </el-tooltip>
+                        <el-tree ref="materialsTree" :data="projectSchema.componentsTree" node-key="id"
+                            default-expand-all :expand-on-click-node="false" :current-node-key="currentNode.id"
+                            :class="$style.materialsTree" highlight-current>
+                            <span :class="$style.materialsTreeNode" slot-scope="{ node, data }"
+                                @click="() => currentNode = data">
+                                <span :class="$style.materialsTreeNodeHead">
+                                    <span :class="$style.materialsTreeIcon"
+                                        :style="{backgroundImage: `url(${getMaterialByName(data.componentName).icon})`}"></span>
+                                    <span>{{ getMaterialByName(data.componentName).title }}</span>
+                                </span>
+                                <span :class="$style.materialsTreeNodeBody">
+                                    <el-link :underline="false" class="el-icon-delete"
+                                        @click.stop="() => removeComponentById(data.id)"></el-link>
+                                </span>
+                            </span>
+                        </el-tree>
+                    </el-tab-pane>
+                    <!-- 大纲树 end -->
+                </el-tabs>
+
             </el-aside>
             <el-main>
-                <div @click="onSimulatorClick">
-                    <draggable v-loading="loading" :class="$style.simulator" :group="{ name: 'simulator' }">
-                        <template v-if="!loading">
-                            <component v-for="component in projectSchema.componentsTree" :is="component.componentName"
-                                :key="component.id" v-bind="component.props" :children="component.children" />
-                        </template>
-                    </draggable>
+                <div @click="onSimulatorClick" :class="$style['simulator']">
+                    <div :class="$style['simulator__device']">
+                        <div :class="$style['simulator__topbar']">{{nowTime}}</div>
+                        <div :class="$style['simulator__canvas']">
+                            <draggable v-loading="loading" :group="{ name: 'simulator' }">
+                                <template v-if="!loading">
+                                    <component v-for="component in projectSchema.componentsTree"
+                                        :is="component.componentName" :key="component.id" v-bind="component.props"
+                                        :children="component.children" />
+                                </template>
+                            </draggable>
+                        </div>
+                    </div>
+
+                    <div :class="$style['simulator__tools']" v-if="currentNode.id">
+                        <el-link :underline="false" class="el-icon-delete"
+                            @click.stop="() => removeComponentById(currentNode.id)"></el-link>
+                    </div>
                 </div>
             </el-main>
-            <el-aside :class="$style.setterPane" width="250px">Aside</el-aside>
+            <el-aside :class="$style.setterPane" width="250px">
+                <template v-if="currentNode.id">
+                    <el-row>
+                        节点名称：{{currentNode.componentName}}
+                    </el-row>
+                    <el-row>
+                        节点标识：{{currentNode.id}}
+                    </el-row>
+                </template>
+                <template v-else>
+                    <el-empty description="请选择节点" />
+                </template>
+            </el-aside>
         </el-container>
     </el-container>
 </template>
@@ -32,8 +91,11 @@
 
     export default {
         name: 'Designer',
-        provide: {
-            env: 'design'
+        provide() {
+            return {
+                env: 'design',
+                getCurrentNode: () => this.currentNode
+            }
         },
         data() {
             return {
@@ -45,12 +107,16 @@
                 env: 'design',
                 // 克隆物料
                 cloneMaterial: {},
-                // 选中组件
-                selectedComponent: null
+                // 选中节点
+                currentNode: {},
+                // 当前时间
+                nowTime: ''
             }
         },
         async created() {
             try {
+                this.startNowTime();
+
                 this.loading = true;
 
                 await this.fetchMaterials();
@@ -63,6 +129,18 @@
             }
         },
         methods: {
+            // 开始获取当前时间
+            startNowTime() {
+                this.getNowTime();
+
+                setInterval(this.getNowTime, 60 * 1000);
+            },
+            getNowTime() {
+                const now = new Date();
+
+                this.nowTime =
+                    `${now.getHours().toString().padStart('0', 2)}:${now.getMinutes().toString().padStart('0', 2)}`;
+            },
             // 生成uuid
             genUuid(prefix = '') {
                 let str = '';
@@ -71,6 +149,55 @@
                 str += Date.now().toString(16).substr(4);
 
                 return prefix + str;
+            },
+            // 根据id查找组件
+            findComponentById(components, id) {
+                const findComponent = (components, id) => {
+                    if (!(components instanceof Array)) return null;
+
+                    for (let i in components) {
+                        let item = components[i];
+
+                        if (item.id === id) return item;
+
+                        if (item.children) {
+                            let target = findComponent(item.children, id);
+
+                            if (target) return target
+                        }
+                    }
+                }
+
+                return findComponent(components, id);
+            },
+            // 根据id查找父级组件
+            findComponentParentById(components, id) {
+                const findComponentParentById = (components, id) => {
+                    let parent;
+
+                    const findParent = (nodes, id) => {
+                        for (let i in nodes) {
+                            const node = nodes[i];
+                            const target = (node.children || []).find(n => n.id === id);
+
+                            if (target) {
+                                parent = node;
+
+                                break;
+                            }
+
+                            if (node.children) {
+                                findParent(node.children, id);
+                            }
+                        }
+                    };
+
+                    findParent(components, id);
+
+                    return parent;
+                }
+
+                return findComponentParentById(components, id);
             },
             // 加载物料库
             async fetchMaterials() {
@@ -97,6 +224,20 @@
                     return Promise.reject(e);
                 }
             },
+            // 通过名称获取物料配置
+            getMaterialByName(componentName) {
+                const materials = [...this.materials];
+
+                for (let i = 0; i < materials.length; i++) {
+                    const material = materials[i];
+
+                    if (material.componentName === componentName) {
+                        return material;
+                    }
+                }
+
+                return '';
+            },
             // 克隆物料
             onCloneMaterial(material) {
                 this.cloneMaterial = {
@@ -108,33 +249,13 @@
                     componentName: material.componentName,
                 }
             },
-            // 根据id查找组件
-            findComponentById(components, id) {
-                const findComponent = (components, id) => {
-                    if (!(components instanceof Array)) return null;
-
-                    for (let i in components) {
-                        let item = components[i];
-
-                        if (item.id === id) return item;
-
-                        if (item.children) {
-                            let target = findComponent(item.children, id);
-
-                            if (target) return target
-                        }
-                    }
-                }
-
-                return findComponent(components, id);
-            },
             // 拖拽结束
             onDraggableEnd(e) {
                 const {
                     originalEvent: {
                         target: {
                             dataset: {
-                                id
+                                nodeKey
                             }
                         }
                     }
@@ -143,7 +264,7 @@
                     ...this.projectSchema
                 };
 
-                const target = this.findComponentById(projectSchema.componentsTree, id);
+                const target = this.findComponentById(projectSchema.componentsTree, nodeKey);
 
                 if (target && target.children) {
                     target.children.push({
@@ -161,29 +282,59 @@
                     target
                 } = e;
 
-                while (!target.dataset.id) {
+                // 查找组件
+                while (!target.id) {
                     target = target.parentNode;
                 }
 
-                const {
-                    id
-                } = target.dataset;
+                const currentNode = this.findComponentById(projectSchema.componentsTree, target.id);
 
-                const component = this.findComponentById(projectSchema.componentsTree, id);
-
-                if (component) {
-                    this.selectedComponent = component;
-
-                    console.log(111, component);
+                if (currentNode) {
+                    this.currentNode = currentNode;
+                } else {
+                    this.currentNode = {};
                 }
+            },
+            // 通过id删除组件
+            removeComponentById(id) {
+                const projectSchema = {
+                    ...this.projectSchema
+                };
+
+                const parent = this.findComponentParentById(projectSchema.componentsTree, id);
+
+                if (parent) {
+                    const index = parent.children.findIndex(i => i.id === id);
+
+                    parent.children.splice(index, 1);
+                }
+
+                this.projectSchema.componentsTree = [...projectSchema.componentsTree];
+            }
+        },
+        watch: {
+            'currentNode.id'(value) {
+                this.$refs['materialsTree'].setCurrentKey(value);
             }
         }
     }
 </script>
 
+<style>
+    .current-node {
+        box-shadow: 0 0 0 1px rgba(25, 137, 250, .8);
+    }
+</style>
+
 <style lang="scss" module>
     .pageContainer {
         height: 100vh;
+
+        :global {
+            .el-main {
+                background-color: #F9F9F9;
+            }
+        }
     }
 
     .pageHeader {
@@ -193,20 +344,35 @@
         justify-content: center;
     }
 
-    .materials {
-        border-right: 1px solid #EEE;
-    }
-
     .setterPane {
         border-left: 1px solid #EEE;
+        font-size: 12px;
+        padding: 10px;
+        line-height: 1.5;
+        color: #666;
+    }
+
+    // 物料列表
+    .materials {
+        border-right: 1px solid #EEE;
+
+        :global {
+            .el-tabs--left .el-tabs__header.is-left {
+                margin-right: 0;
+            }
+        }
     }
 
     .materialItem {
+        box-sizing: border-box;
+        float: left;
+        width: 50%;
         padding: 10px;
         font-size: 12px;
         text-align: center;
         border-bottom: 1px solid #EEE;
         transition: box-shadow .3s ease;
+        border-left: 1px solid #EEE;
 
         &:hover {
             cursor: pointer;
@@ -222,8 +388,123 @@
         padding-bottom: 100%;
     }
 
-    .simulator {
+    // 大纲树
+    .materialsTreeNode {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        line-height: 26px;
+        font-size: 12px;
+        min-height: 26px;
         width: 100%;
-        height: 100%;
+        padding-left: 5px;
+        padding-right: 5px;
+
+        &:hover {
+            .materialsTreeNodeBody {
+                display: flex;
+            }
+        }
+    }
+
+    .materialsTreeNodeHead {
+        display: flex;
+    }
+
+    .materialsTreeNodeBody {
+        display: none;
+        align-items: center;
+        height: 26px;
+    }
+
+    .materialsTreeIcon {
+        display: inline-block;
+        width: 20px;
+        height: 26px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center center;
+        margin-right: 5px;
+    }
+
+    // 模拟器
+    .simulator {
+        width: 375px;
+        height: 680px;
+        position: relative;
+        margin: 0 auto;
+        border: 1px solid #EEE;
+        background: #FFF;
+
+        // 设备
+        &__device {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        // 顶部栏
+        &__topbar {
+            position: relative;
+            height: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+            opacity: .8;
+
+            &::before,
+            &::after {
+                text-align: left;
+                content: '';
+                height: 100%;
+                position: absolute;
+                line-height: 20px;
+                top: 0;
+                background: url('~@/assets/ios-topbar.png') no-repeat;
+                background-size: auto 12px;
+                background-position-y: center;
+            }
+
+            &::before {
+                left: 5px;
+                content: '中国移动5G';
+                width: 108px;
+                background-position-x: 68px;
+            }
+
+            &::after {
+                right: 5px;
+                content: '60%';
+                width: 60px;
+                background-position-x: right;
+            }
+        }
+
+        // 画布
+        &__canvas {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        // 工具栏
+        &__tools {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translate(100%, -50%);
+            border: 1px solid #EEE;
+            width: 30px;
+            border-radius: 0 4px 4px 0;
+            background: #FFF;
+
+            a {
+                display: block;
+                font-size: 16px;
+                width: 30px;
+                height: 30px;
+                line-height: 30px;
+                text-align: center;
+            }
+        }
     }
 </style>

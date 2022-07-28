@@ -1,28 +1,25 @@
 <template>
-    <div :class="$style['material-page']" :data-id="$vnode.key">
+    <div :class="[$style['material-page'], currentNodeKey === nodeKey && 'current-node']"
+        :id="nodeKey">
+        <div>页面组件</div>
         <component v-for="component in children" :is="component.componentName" :key="component.id"
             v-bind="component.props" :children="component.children" />
         <template v-if="env === 'design'">
-            <div :class="$style['material-page__placeholder']" :data-id="$vnode.key">拖拽组件到这里</div>
+            <div :class="$style['material-page__placeholder']" :data-node-key="nodeKey">拖拽组件到这里
+            </div>
         </template>
     </div>
 </template>
 
 <script>
+    import mixins from '../mixins';
+
     export default {
         name: 'Page',
-        inject: ['env'],
-        props: {
-            children: {
-                type: Array,
-                default () {
-                    return [];
-                }
-            }
-        },
+        mixins,
         data() {
             return {};
-        }
+        },
     }
 </script>
 

@@ -1,13 +1,15 @@
 <template>
-    <button :data-id="$vnode.key">按钮</button>
+    <button :class="[currentNodeKey === nodeKey && 'current-node']" :id="nodeKey">按钮</button>
 </template>
 
 <script>
-export default {
-    name: 'Button',
-    inject: ['env'],
-    data() {
-        return {};
+    import mixins from '../mixins';
+
+    export default {
+        name: 'Button',
+        mixins,
+        data() {
+            return {};
+        },
     }
-}
 </script>
