@@ -1,6 +1,11 @@
 <template>
     <el-container :class="$style.pageContainer">
-        <el-header :class="$style.pageHeader">页面设计</el-header>
+        <el-header :class="$style.pageHeader">
+            <h1 :class="$style.pageTitle"><i class="el-icon-menu"></i>页面设计</h1>
+            <div>
+                <el-button @click="schemaVisible = true" size="mini">schema</el-button>
+            </div>
+        </el-header>
         <el-container>
             <el-aside :class="$style.materials" width="300px">
                 <el-tabs tab-position="left" style="height: 100%">
@@ -45,52 +50,95 @@
                     </el-tab-pane>
                     <!-- 大纲树 end -->
                 </el-tabs>
-
             </el-aside>
             <el-main>
-                <div @click="onSimulatorClick" :class="$style['simulator']">
-                    <div :class="$style['simulator__device']">
-                        <div :class="$style['simulator__topbar']">{{nowTime}}</div>
-                        <div :class="$style['simulator__canvas']">
-                            <draggable v-loading="loading" :group="{ name: 'simulator' }">
-                                <template v-if="!loading">
-                                    <component v-for="component in projectSchema.componentsTree"
-                                        :is="component.componentName" :key="component.id" v-bind="component.props"
-                                        :children="component.children" />
-                                </template>
-                            </draggable>
+                <div :class="$style['pageMain']">
+                    <div @click="onSimulatorClick" :class="$style['simulator']">
+                        <div :class="$style['simulator__device']">
+                            <div :class="$style['simulator__topbar']">{{nowTime}}</div>
+                            <div :class="$style['simulator__canvas']">
+                                <draggable v-loading="loading" :group="{ name: 'simulator' }" style="height: 100%;">
+                                    <template v-if="!loading">
+                                        <component v-for="component in projectSchema.componentsTree"
+                                            :is="component.componentName" :key="component.id" v-bind="component.props"
+                                            :children="component.children" />
+                                    </template>
+                                </draggable>
+                            </div>
+                        </div>
+
+                        <div :class="$style['simulator__tools']" v-if="currentNode.id">
+                            <el-link :underline="false" class="el-icon-delete"
+                                @click.stop="() => removeComponentById(currentNode.id)"></el-link>
                         </div>
                     </div>
-
-                    <div :class="$style['simulator__tools']" v-if="currentNode.id">
-                        <el-link :underline="false" class="el-icon-delete"
-                            @click.stop="() => removeComponentById(currentNode.id)"></el-link>
-                    </div>
                 </div>
+
             </el-main>
-            <el-aside :class="$style.setterPane" width="250px">
-                <template v-if="currentNode.id">
-                    <el-row>
-                        节点名称：{{currentNode.componentName}}
-                    </el-row>
-                    <el-row>
-                        节点标识：{{currentNode.id}}
-                    </el-row>
-                </template>
-                <template v-else>
-                    <el-empty description="请选择节点" />
-                </template>
+            <el-aside :class="$style.setterPane" width="350px">
+                <el-tabs style="height: 100%">
+                    <!-- 属性 start -->
+                    <el-tab-pane label="属性">
+                        <div v-if="currentNode.id">
+                            <div :class="$style['setter']">
+                                <div :class="$style['setter__title']">节点名称：</div>
+                                <p :class="$style['setter__content']">{{currentNode.componentName}}</p>
+                            </div>
+                            <div :class="$style['setter']">
+                                <div :class="$style['setter__title']">节点标识：</div>
+                                <p :class="$style['setter__content']">{{currentNode.id}}</p>
+                            </div>
+                            <Setters />
+                        </div>
+                        <template v-else>
+                            <el-empty description="请选择节点" />
+                        </template>
+                    </el-tab-pane>
+                    <!-- 属性 end -->
+                    <!-- 事件 start -->
+                    <el-tab-pane label="事件">
+                        <template v-if="currentNode.id">
+                            事件面板
+                        </template>
+                        <template v-else>
+                            <el-empty description="请选择节点" />
+                        </template>
+                    </el-tab-pane>
+                    <!-- 事件 end -->
+                    <!-- 逻辑 start -->
+                    <el-tab-pane label="逻辑">
+                        <template v-if="currentNode.id">
+                            逻辑面板
+                        </template>
+                        <template v-else>
+                            <el-empty description="请选择节点" />
+                        </template>
+                    </el-tab-pane>
+                    <!-- 逻辑 end -->
+                </el-tabs>
             </el-aside>
         </el-container>
+
+        <el-dialog title="Schema" :visible.sync="schemaVisible" fullscreen>
+            <CodeEditor ref="SchemaCodeEditor" :options="{ language: 'json' }"
+                :value="JSON.stringify(projectSchema, null, 2)" @change="onSchemaEditorChange"
+                style="width: 100vw; height: calc(100vh - 64px); margin: -20px -20px -30px; overflow: hidden;" />
+        </el-dialog>
     </el-container>
 </template>
 
 <script>
     import Vue from 'vue';
+    import Setters from './setters/index.vue';
+    import CodeEditor from '../logic/packages/core/src/components/codeEditor';
     import projectSchema from './projectSchema';
 
     export default {
         name: 'Designer',
+        components: {
+            Setters,
+            CodeEditor
+        },
         provide() {
             return {
                 env: 'design',
@@ -110,7 +158,9 @@
                 // 选中节点
                 currentNode: {},
                 // 当前时间
-                nowTime: ''
+                nowTime: '',
+                // schema可见
+                schemaVisible: false
             }
         },
         async created() {
@@ -239,13 +289,27 @@
                 return '';
             },
             // 克隆物料
-            onCloneMaterial(material) {
+            async onCloneMaterial(material) {
+                // 获取物料实例
+                const component = this.$root.$options.components[material.componentName];
+                const componentData = (await component()).default;
+
+                // 解析物料属性
+                const props = {};
+
+                for (let key in componentData.props) {
+                    props[key] = [Object, Array].includes(componentData.props[key].type) ?
+                        componentData.props[key].default() :
+                        componentData.props[key].default;
+                }
+
                 this.cloneMaterial = {
                     // ...material,
-
                     id: this.genUuid(`node_`),
-                    props: {},
-                    children: [],
+                    props,
+                    events: [], // 事件列表
+                    logicFlows: [], // 逻辑列表
+                    children: [], // 子组件列表
                     componentName: material.componentName,
                 }
             },
@@ -271,6 +335,8 @@
                         ...this.cloneMaterial
                     });
                 }
+
+                this.currentNode = this.cloneMaterial;
 
                 this.projectSchema = {
                     ...projectSchema
@@ -310,11 +376,26 @@
                 }
 
                 this.projectSchema.componentsTree = [...projectSchema.componentsTree];
+            },
+            // schema修改
+            onSchemaEditorChange(newCode = '') {
+                try {
+                    this.projectSchema = JSON.parse(newCode);
+                } catch (err) {
+                    // cancel log to avoid wasting Console outputs
+                }
             }
         },
         watch: {
             'currentNode.id'(value) {
                 this.$refs['materialsTree'].setCurrentKey(value);
+            },
+            schemaVisible(value) {
+                if (value) {
+                    this.$nextTick(() => {
+                        this.$refs['SchemaCodeEditor'].setValue(JSON.stringify(this.projectSchema, null, 2));
+                    });
+                }
             }
         }
     }
@@ -341,12 +422,33 @@
         border-bottom: 1px solid #EEE;
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between;
+    }
+
+    .pageTitle {
+        color: #666;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 20px;
+
+        i {
+            position: relative;
+            top: 2px;
+            margin-right: 10px;
+            font-size: 20px;
+        }
+    }
+
+    .pageMain {
+        overflow-y: auto;
+        margin: -20px;
+        padding: 20px;
+        height: calc(100vh - 100px);
     }
 
     .setterPane {
         border-left: 1px solid #EEE;
-        font-size: 12px;
+        font-size: 14px;
         padding: 10px;
         line-height: 1.5;
         color: #666;
@@ -506,5 +608,15 @@
                 text-align: center;
             }
         }
+    }
+
+    .setter {
+        margin-bottom: 18px;
+    }
+
+    .setter__title {
+        line-height: 26px;
+        padding-bottom: 6px;
+        font-size: 14px;
     }
 </style>

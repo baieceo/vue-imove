@@ -1,0 +1,18 @@
+{
+    "type": "object",
+    "required": [],
+    "properties": {
+        "text": {
+            "title": "文本",
+            "type": "string",
+            "default": "按钮",
+            "apiAutoFetch": false,
+            "ui:options": {
+                "placeholder": "请输入"
+            }
+        }
+    },
+    "ui:order": [
+        "text"
+    ]
+}

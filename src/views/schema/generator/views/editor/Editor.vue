@@ -19,7 +19,7 @@
           [$style.closeToolbar]: closeToolbar,
           [contentWrapClass]: contentWrapClass || '',
         }">
-        <div :class="$style.toolBarWrap">
+        <div :class="[$style.toolBarWrap, toolBarWrapClass]">
           <div :class="$style.toolsBar">
             <EditorToolBar :drag-group="dragOptions.group" :class="[toolBarBoxClass]" :config-tools="configTools"
               @onFilter="$message.error('该组件添加数目已达上限！')">
@@ -41,7 +41,7 @@
               // [`genFromComponent_${schema.id}Form`]: !!schema.id,
             }">
               <NestedEditor :child-component-list="componentList" :drag-options="dragOptions" :form-data="rootFormData"
-                :form-props="formProps">
+                :form-props="formProps" :dragAreaClass="dragAreaClass">
                 <el-form-item v-if="componentList.length > 0 && formFooter.show" :style="{
                   display:
                     formProps.inline && formProps.inlineFooter
@@ -93,7 +93,7 @@
 
 <script>
   import VueJsonFrom from '../../../lib/vue2/vue2-form-element/src/index';
-import componentWithDialog from '../../../demo-common/components/component-with-dialog/index';
+  import componentWithDialog from '../../../demo-common/components/component-with-dialog/index';
   import {
     openNewPage
   } from '../../../demo-common/utils/url.js';
@@ -138,10 +138,12 @@ import componentWithDialog from '../../../demo-common/components/component-with-
       hideEditorHeader: Boolean,
       containerClass: String,
       toolBarBoxClass: String,
+      toolBarWrapClass: String,
       contentWrapClass: String,
       contentBoxClass: String,
       contentFormClass: String,
-      rightFormClass: String
+      rightFormClass: String,
+      dragAreaClass: String
     },
     data() {
       return {

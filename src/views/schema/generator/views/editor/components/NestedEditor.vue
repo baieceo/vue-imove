@@ -3,7 +3,7 @@
     ref="draggable"
     :list="childComponentList"
     v-bind="dragOptions"
-    :class="[$style.dragArea, $style.formItemWrap]"
+    :class="[$style.dragArea, $style.formItemWrap, dragAreaClass]"
     @change="handleDragChange"
   >
     <div
@@ -54,6 +54,7 @@ export default {
     ViewComponentWrap,
   },
   props: {
+    dragAreaClass: String,
     dragOptions: {
       type: Object,
       default: () => ({}),

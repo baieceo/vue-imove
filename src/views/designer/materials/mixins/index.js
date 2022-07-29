@@ -1,4 +1,4 @@
-import base from './mixin'
+import base from './base'
 
 export default [
     base

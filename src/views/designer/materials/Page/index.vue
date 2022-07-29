@@ -1,7 +1,5 @@
 <template>
-    <div :class="[$style['material-page'], currentNodeKey === nodeKey && 'current-node']"
-        :id="nodeKey">
-        <div>页面组件</div>
+    <div :class="[$style['material-page'], currentNodeKey === nodeKey && 'current-node']" :id="nodeKey">
         <component v-for="component in children" :is="component.componentName" :key="component.id"
             v-bind="component.props" :children="component.children" />
         <template v-if="env === 'design'">
