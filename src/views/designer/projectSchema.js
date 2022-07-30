@@ -18,7 +18,7 @@ export default {
             }
         },
         "children": [{
-            "id": "node_idru9z44oma96ee49",
+            "id": "node_i3l127o34ad84235b",
             "props": {
                 "schema": {
                     "text": "按钮",
@@ -40,8 +40,10 @@ export default {
                     ]
                 }
             },
+            "events": [],
+            "logicFlows": [],
             "children": [],
             "componentName": "Button"
         }]
     }]
-}
+};

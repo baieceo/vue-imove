@@ -1,6 +1,15 @@
 <template>
-    <div class="setters">
-        <component v-for="item in currentNodeProps" :key="item" :is="item + '-setter'"
+    <div :class="$style['setters']">
+        <div :class="$style['setter']">
+            <div :class="$style['setter__title']">节点名称：</div>
+            <p :class="$style['setter__content']">{{currentNode.componentName}}</p>
+        </div>
+        <div :class="$style['setter']">
+            <div :class="$style['setter__title']">节点标识：</div>
+            <p :class="$style['setter__content']">{{currentNode.id}}</p>
+        </div>
+
+        <component v-for="item in currentNodeProps" :key="currentNode.id + item" :is="item + '-setter'"
             v-bind.sync="currentNode.props" />
     </div>
 </template>
@@ -18,24 +27,14 @@
             currentNode() {
                 return this.getCurrentNode() || {};
             },
-            currentNodeKey() {
-                return this.currentNode.id;
-            },
             currentNodeProps() {
                 if (!this.currentNode.props) {
                     return [];
                 }
 
-                console.log('this.currentNode.props', this.currentNode.props);
-
                 let keys = Object.keys(this.currentNode.props);
 
-                console.log('keys', keys);
-
                 const setterNames = Object.keys(setters);
-
-                console.log('setters', setters);
-                console.log('setterNames', setterNames);
 
                 keys = keys.filter((v) => {
                     return setterNames.includes(v + '-setter');
@@ -46,3 +45,24 @@
         }
     }
 </script>
+
+<style lang="scss" module>
+    .setters {
+        :global {
+            .el-form--label-top .el-form-item__label {
+                font-size: 12px;
+            }
+        }
+    }
+
+    .setter {
+        margin-bottom: 18px;
+        font-size: 12px;
+    }
+
+    .setter__title {
+        line-height: 26px;
+        padding-bottom: 6px;
+        font-size: 12px;
+    }
+</style>

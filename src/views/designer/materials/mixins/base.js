@@ -10,7 +10,7 @@ export default {
     },
     computed: {
         currentNode() {
-            return this.getCurrentNode() || {};
+            return this.getCurrentNode();
         },
         currentNodeKey() {
             return this.currentNode.id;

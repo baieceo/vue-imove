@@ -52,7 +52,7 @@
                 </el-tabs>
             </el-aside>
             <el-main>
-                <div :class="$style['pageMain']">
+                <el-scrollbar :class="$style['pageMain']" style="height: calc(100vh - 60px);">
                     <div @click="onSimulatorClick" :class="$style['simulator']">
                         <div :class="$style['simulator__device']">
                             <div :class="$style['simulator__topbar']">{{nowTime}}</div>
@@ -72,47 +72,44 @@
                                 @click.stop="() => removeComponentById(currentNode.id)"></el-link>
                         </div>
                     </div>
-                </div>
+                </el-scrollbar>
 
             </el-main>
             <el-aside :class="$style.setterPane" width="350px">
-                <el-tabs style="height: 100%">
+                <el-tabs v-model="setterTabName" style="height: 100%">
                     <!-- 属性 start -->
-                    <el-tab-pane label="属性">
-                        <div v-if="currentNode.id">
-                            <div :class="$style['setter']">
-                                <div :class="$style['setter__title']">节点名称：</div>
-                                <p :class="$style['setter__content']">{{currentNode.componentName}}</p>
+                    <el-tab-pane label="属性" name="props">
+                        <el-scrollbar style="height: calc(100vh - 120px);">
+                            <div v-if="currentNode.id">
+                                <Setters />
                             </div>
-                            <div :class="$style['setter']">
-                                <div :class="$style['setter__title']">节点标识：</div>
-                                <p :class="$style['setter__content']">{{currentNode.id}}</p>
-                            </div>
-                            <Setters />
-                        </div>
-                        <template v-else>
-                            <el-empty description="请选择节点" />
-                        </template>
+                            <template v-else>
+                                <el-empty description="请选择节点" />
+                            </template>
+                        </el-scrollbar>
                     </el-tab-pane>
                     <!-- 属性 end -->
                     <!-- 事件 start -->
-                    <el-tab-pane label="事件">
-                        <template v-if="currentNode.id">
-                            事件面板
-                        </template>
-                        <template v-else>
-                            <el-empty description="请选择节点" />
-                        </template>
+                    <el-tab-pane label="事件" name="events">
+                        <el-scrollbar style="height: calc(100vh - 120px);">
+                            <template v-if="currentNode.id">
+                                <Events />
+                            </template>
+                            <template v-else>
+                                <el-empty description="请选择节点" />
+                            </template>
+                        </el-scrollbar>
                     </el-tab-pane>
                     <!-- 事件 end -->
                     <!-- 逻辑 start -->
-                    <el-tab-pane label="逻辑">
-                        <template v-if="currentNode.id">
-                            逻辑面板
-                        </template>
-                        <template v-else>
-                            <el-empty description="请选择节点" />
-                        </template>
+                    <el-tab-pane label="逻辑" name="logicFlows">
+                        <el-scrollbar style="height: calc(100vh - 120px);">
+                            <template v-if="currentNode.id">
+                                逻辑面板
+                            </template>
+                            <template v-else>
+                                <el-empty description="请选择节点" />
+                            </template></el-scrollbar>
                     </el-tab-pane>
                     <!-- 逻辑 end -->
                 </el-tabs>
@@ -130,6 +127,7 @@
 <script>
     import Vue from 'vue';
     import Setters from './setters/index.vue';
+    import Events from './events/index.vue';
     import CodeEditor from '../logic/packages/core/src/components/codeEditor';
     import projectSchema from './projectSchema';
 
@@ -137,6 +135,7 @@
         name: 'Designer',
         components: {
             Setters,
+            Events,
             CodeEditor
         },
         provide() {
@@ -160,7 +159,9 @@
                 // 当前时间
                 nowTime: '',
                 // schema可见
-                schemaVisible: false
+                schemaVisible: false,
+                // setter激活标签
+                setterTabName: 'events',
             }
         },
         async created() {
@@ -206,12 +207,12 @@
                     if (!(components instanceof Array)) return null;
 
                     for (let i in components) {
-                        let item = components[i];
+                        const item = components[i];
 
                         if (item.id === id) return item;
 
                         if (item.children) {
-                            let target = findComponent(item.children, id);
+                            const target = findComponent(item.children, id);
 
                             if (target) return target
                         }
@@ -292,7 +293,7 @@
             async onCloneMaterial(material) {
                 // 获取物料实例
                 const component = this.$root.$options.components[material.componentName];
-                const componentData = (await component()).default;
+                const componentData = { ...(await component()).default };
 
                 // 解析物料属性
                 const props = {};
@@ -329,18 +330,19 @@
                 };
 
                 const target = this.findComponentById(projectSchema.componentsTree, nodeKey);
+                const cloneMaterial = { ...this.cloneMaterial };
 
                 if (target && target.children) {
-                    target.children.push({
-                        ...this.cloneMaterial
-                    });
+                    target.children.push(cloneMaterial);
                 }
 
-                this.currentNode = this.cloneMaterial;
+                this.currentNode = cloneMaterial;
 
                 this.projectSchema = {
                     ...projectSchema
                 };
+
+                this.$nextTick(this.$forceUpdate);
             },
             // 点击模拟器
             onSimulatorClick(e) {
@@ -353,7 +355,7 @@
                     target = target.parentNode;
                 }
 
-                const currentNode = this.findComponentById(projectSchema.componentsTree, target.id);
+                const currentNode = this.findComponentById(this.projectSchema.componentsTree, target.id);
 
                 if (currentNode) {
                     this.currentNode = currentNode;
@@ -381,10 +383,16 @@
             onSchemaEditorChange(newCode = '') {
                 try {
                     this.projectSchema = JSON.parse(newCode);
+
+                    this.$nextTick(() => {
+                        this.currentNode = this.findComponentById(this.projectSchema.componentsTree, this.currentNode.id);
+
+                        this.$forceUpdate();
+                    });
                 } catch (err) {
                     // cancel log to avoid wasting Console outputs
                 }
-            }
+            },
         },
         watch: {
             'currentNode.id'(value) {
@@ -440,18 +448,31 @@
     }
 
     .pageMain {
-        overflow-y: auto;
         margin: -20px;
-        padding: 20px;
-        height: calc(100vh - 100px);
+
+        :global {
+            .el-scrollbar__wrap {
+                overflow-x: hidden;
+            }
+        }
     }
 
     .setterPane {
         border-left: 1px solid #EEE;
         font-size: 14px;
-        padding: 10px;
+        padding: 0 10px;
         line-height: 1.5;
         color: #666;
+
+        :global {
+            .el-scrollbar__wrap {
+                overflow-x: hidden;
+            }
+
+            .el-scrollbar__view {
+                padding-right: 1px;
+            }
+        }
     }
 
     // 物料列表
@@ -534,7 +555,7 @@
         width: 375px;
         height: 680px;
         position: relative;
-        margin: 0 auto;
+        margin: 20px auto;
         border: 1px solid #EEE;
         background: #FFF;
 
@@ -608,15 +629,5 @@
                 text-align: center;
             }
         }
-    }
-
-    .setter {
-        margin-bottom: 18px;
-    }
-
-    .setter__title {
-        line-height: 26px;
-        padding-bottom: 6px;
-        font-size: 14px;
     }
 </style>

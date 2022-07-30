@@ -1,5 +1,6 @@
 <template>
-  <VueElementForm v-model="model" :schema="schema" :formProps="{size: 'mini'}" :formFooter="{ show: false }" />
+  <VueElementForm :value="schema" @input="value => $emit('update:schema', value)" :schema="schema"
+    :formProps="{size: 'mini'}" :formFooter="{ show: false }" />
 </template>
 
 <script>
@@ -15,25 +16,8 @@
       schema: Object,
     },
     data() {
-      return {
-        model: {},
-      };
-    },
-    mounted() {
-      this.model = this.schema;
-    },
-    watch: {
-      schema: {
-        handler(val) {
-          this.model = val;
-        },
-        deep: true,
-        immediate: true,
-      },
-      model() {
-        this.$emit('update:schema', this.model);
-      },
-    },
+      return {};
+    }
   };
 </script>
 
