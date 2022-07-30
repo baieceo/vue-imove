@@ -1,0 +1,40 @@
+.cards {
+    &__head {
+        padding-bottom: 15px;
+    }
+    &__body {
+        padding-bottom: 20px;
+    }
+}
+
+.card {
+    &__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #409eff;
+        background: #ecf5ff;
+        border: 1px solid #b3d8ff;
+        padding: 0 10px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+    &__body {
+        font-size: 12px;
+        padding-bottom: 20px;
+    }
+    &__title {
+        font-size: 12px;
+        font-weight: 400;
+    }
+    &__tools {}
+    &__item {
+        &-head {
+            line-height: 26px;
+            padding-bottom: 6px;
+        }
+        &-body {
+            padding-bottom: 18px;
+        }
+    }
+}

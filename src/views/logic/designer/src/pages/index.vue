@@ -1,5 +1,5 @@
 <template>
-    <div :style="{height: '100vh' }">
+    <div :style="{height: 'calc(100vh - 60px)', width: '100%' }">
       <ILogic @onSave="onSave" />
     </div>
 </template>

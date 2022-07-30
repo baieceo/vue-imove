@@ -3,7 +3,16 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 module.exports = defineConfig({
     devServer: {
-        port: 8888
+        port: 8888,
+        proxy: {
+            '/api': {
+                target: 'http://localhost:7001',
+                changeOrigin: true,
+                pathRewrite: {
+                    '^/api': ''
+                }
+            }
+        }
     },
     transpileDependencies: true,
     lintOnSave: false,
