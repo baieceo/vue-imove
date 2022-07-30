@@ -10,10 +10,24 @@ class ProjectService extends Service {
     }
 
     // 查找项目列表
-    async findList(params) {
-        const list = await this.ctx.app.lowdb.model('project').find({});
+    async findList(params = {}, options = {}) {
+        const defaultOptions = {
+            sortBy: 'createTime',
+            orderBy: 'asc',
+            offset: 0,
+            limit: 5
+        };
+        const list = await this.ctx.app.lowdb.model('project').find(params, {
+            ...defaultOptions,
+            ...options
+        });
 
-        return list;
+        const count = await this.ctx.app.lowdb.model('project').count(params);
+
+        return {
+            list,
+            count
+        };
     }
 }
 

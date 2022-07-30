@@ -3,7 +3,7 @@ const lowdb = require('lowdb');
 const shortid = require('shortid');
 const FileSync = require('lowdb/adapters/FileSync'); // 有多种适配器可选择
 
-let dbProxy = module.exports = class extends EventEmitter {
+const dbProxy = module.exports = class extends EventEmitter {
     constructor(config) {
         super();
         this.config = config
@@ -15,8 +15,10 @@ let dbProxy = module.exports = class extends EventEmitter {
 
 class dbModel {
     constructor(name, path) {
-        let adapter = new FileSync(path + name + '.json');
+        const adapter = new FileSync(path + name + '.json');
+
         this.db = lowdb(adapter);
+
         if (!this.db.has('posts')
             .value()) {
             this.db.defaults({ posts: [] }).write();
@@ -47,15 +49,24 @@ class dbModel {
             .write()
         return this;
     }
-    find(query, option = { sortBy: 'id', limit: 5 }) {
+    find(query, option = { sortBy: 'id', orderBy: 'asc', offset: 0, limit: 5 }) {
         return this.db.get('posts')
             .filter(query)
-            .sortBy(option.sortBy)
+            .sortBy(function(o) {
+                if (option.orderBy === 'asc') {
+                    return o[option.sortBy];
+                } else {
+                    return -o[option.sortBy];
+                }
+            })
+            .drop(option.offset)
             .take(option.limit)
             .value()
-            // db.get('posts')
-            //     .map('title')
-            //     .value()
+    }
+    count(query) {
+        return this.db.get('posts')
+            .filter(query)
+            .size()
     }
     map(key) {
         return this.db.get('posts')
