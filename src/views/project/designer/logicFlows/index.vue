@@ -12,8 +12,7 @@
             </el-dropdown>
         </div>
         <div :class="$style['cards__body']">
-            <div :class="$style['card']" v-for="(logicFlow) in currentNode.logicFlows"
-                :key="logicFlow.key">
+            <div :class="$style['card']" v-for="(logicFlow) in currentNode.logicFlows" :key="logicFlow.key">
                 <div :class="$style['card__head']">
                     <h3 :class="$style['card__title']">{{logicFlow.title}}</h3>
                     <div :class="$style['card__tools']">
@@ -47,6 +46,10 @@
 </template>
 
 <script>
+    import {
+        genid
+    } from '../../../../utils/utils';
+
     export default {
         name: 'logicFlows',
         inject: ['env', 'getCurrentNode'],
@@ -67,21 +70,12 @@
             },
         },
         methods: {
-            // 生成uuid
-            genUuid(prefix = '') {
-                let str = '';
-
-                str = Math.random().toString(36).substr(3);
-                str += Date.now().toString(16).substr(4);
-
-                return prefix + str;
-            },
             // 逻辑命令
             handleLogicFlowCommand(command) {
                 const logicFlow = {
                     ...this.types.find(e => e.name === command)
                 };
-                const uuid = this.genUuid('logicFlow_');
+                const uuid = `logicFlow_${genid()}`;
 
                 logicFlow.id = uuid;
                 logicFlow.key = uuid;

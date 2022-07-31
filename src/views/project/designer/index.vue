@@ -127,6 +127,7 @@
 
 <script>
     import Vue from 'vue';
+    import {genid} from '../../../utils/utils';
     import Setters from './setters/index.vue';
     import Events from './events/index.vue';
     import LogicFlows from './logicFlows/index.vue';
@@ -194,15 +195,6 @@
 
                 this.nowTime =
                     `${now.getHours().toString().padStart('0', 2)}:${now.getMinutes().toString().padStart('0', 2)}`;
-            },
-            // 生成uuid
-            genUuid(prefix = '') {
-                let str = '';
-
-                str = Math.random().toString(36).substr(3);
-                str += Date.now().toString(16).substr(4);
-
-                return prefix + str;
             },
             // 根据id查找组件
             findComponentById(components, id) {
@@ -311,7 +303,7 @@
 
                 this.cloneMaterial = {
                     // ...material,
-                    id: this.genUuid(`node_`),
+                    id: `node_${genid()}`,
                     props,
                     events: [], // 事件列表
                     logicFlows: [], // 逻辑列表

@@ -16,7 +16,8 @@
                 <div :class="$style['card__head']">
                     <h3 :class="$style['card__title']">{{event.title}}</h3>
                     <div :class="$style['card__tools']">
-                        <el-button size="mini" type="text" icon="el-icon-delete" @click="() => handleEventRemove(event.id)"></el-button>
+                        <el-button size="mini" type="text" icon="el-icon-delete"
+                            @click="() => handleEventRemove(event.id)"></el-button>
                     </div>
                 </div>
                 <div :class="$style['card__body']">
@@ -28,6 +29,7 @@
 </template>
 
 <script>
+    import {genid} from '../../../../utils/utils';
     import events, {
         types
     } from './index.js';
@@ -49,22 +51,13 @@
             },
         },
         methods: {
-            // 生成uuid
-            genUuid(prefix = '') {
-                let str = '';
-
-                str = Math.random().toString(36).substr(3);
-                str += Date.now().toString(16).substr(4);
-
-                return prefix + str;
-            },
             // 事件命令
             handleEventCommand(command) {
                 const event = {
                     ...types.find(e => e.name === command)
                 };
 
-                event.id = this.genUuid('event_');
+                event.id = `event_${genid()}`;
 
                 // 默认值
                 if (event.default !== undefined) {

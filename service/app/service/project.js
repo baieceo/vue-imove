@@ -13,8 +13,6 @@ class ProjectService extends Service {
     async remove(params = {}) {
         const res = await this.ctx.app.lowdb.model('project').remove(params);
 
-        console.log(111111, res);
-
         return res;
     }
 
