@@ -9,6 +9,15 @@ class ProjectService extends Service {
         return res;
     }
 
+    // 删除项目
+    async remove(params = {}) {
+        const res = await this.ctx.app.lowdb.model('project').remove(params);
+
+        console.log(111111, res);
+
+        return res;
+    }
+
     // 查找项目列表
     async findList(params = {}, options = {}) {
         const defaultOptions = {
@@ -29,6 +38,8 @@ class ProjectService extends Service {
             count
         };
     }
+
+
 }
 
 module.exports = ProjectService;

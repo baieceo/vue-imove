@@ -21,6 +21,21 @@ class HomeController extends Controller {
         }
     }
 
+    // 删除项目
+    async remove() {
+        const { ctx, service } = this;
+        const req = Object.assign(ctx.request.body);
+
+        const res = await service.project.remove(req);
+
+        ctx.body = {
+            code: 0,
+            data: res,
+            message: 'success'
+        }
+    }
+
+    // 查询列表
     async list() {
         const { ctx, service } = this;
         const { query } = ctx;

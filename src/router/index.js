@@ -19,10 +19,12 @@ const routes = [{
         component: LayoutListView,
         children: [{
             path: '/',
+            name: 'projectList',
             component: ProjectListView
         }]
     }, {
         path: 'project/designer',
+        name: 'projectDesigner',
         component: ProjectDesignerView
     }, {
         path: 'logic/list',

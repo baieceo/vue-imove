@@ -11,18 +11,19 @@
             <el-table-column property="createTime" label="时间" width="160"></el-table-column>
             <el-table-column fixed="right" label="操作" width="120">
                 <template slot-scope="scope">
-                    <el-button @click.native.prevent="editRow(scope.$index, tableData)" type="text" size="small">
+                    <el-button @click.native.prevent="editRow(scope.$index, tableData)" type="text" size="small" style="margin-right: 5px;">
                         编辑
                     </el-button>
-                    <el-button @click.native.prevent="deleteRow(scope.$index, tableData)" type="text" size="small">
-                        删除
-                    </el-button>
+
+                    <el-popconfirm title="确定删除此项目吗？" icon="el-icon-info" icon-color="red" @confirm="deleteRow(scope.$index, tableData)">
+                        <el-button slot="reference" type="text" size="small">删除</el-button>
+                    </el-popconfirm>
                 </template>
             </el-table-column>
         </el-table>
 
-        <el-pagination background layout="prev, pager, next" :total="pagination.total" :page-size="pagination.pageSize"
-            :current-page.sync="pagination.pageNo" hide-on-single-page style="text-align: center;"></el-pagination>
+        <el-pagination background layout="prev, pager, next, sizes, total" :total="pagination.total" :page-size.sync="pagination.pageSize"
+            :current-page.sync="pagination.pageNo" @size-change="fetchData" @current-change="fetchData" style="text-align: center;"></el-pagination>
 
         <el-dialog title="新建项目" :visible.sync="dialogFormVisible" width="500px" destroy-on-close>
             <el-form ref="addForm" :model="form" :rules="rules" size="mini" label-width="120px">
@@ -44,7 +45,8 @@
 <script>
     import {
         apiProjectAdd,
-        apiProjectList
+        apiProjectList,
+        apiProjectRemove
     } from '../../services/project';
 
     export default {
@@ -103,15 +105,35 @@
             },
             // 编辑
             editRow(index, rows) {
-                const row = rows[index];
+                const {id} = rows[index];
 
-                console.log('编辑', row);
+                this.$router.push({
+                    name: 'projectDesigner',
+                    query: {
+                        id
+                    }
+                });
             },
             // 删除
-            deleteRow(index, rows) {
-                const row = rows[index];
+            async deleteRow(index, rows) {
+                const { id } = rows[index];
+                const loading = this.$message({
+                    type: 'info',
+                    message: '删除中，请稍候',
+                    duration: 0
+                });
 
-                console.log('删除', row);
+                try {
+                    await apiProjectRemove({
+                        id
+                    });
+
+                    this.fetchData();
+                } catch (e) {
+                    console.error('删除项目失败', e);
+                } finally {
+                    loading.close();
+                }
             },
             // 新增确定
             handleAddSubmit() {
@@ -133,7 +155,6 @@
             }
         },
         watch: {
-            'pagination.pageNo': 'fetchData',
             dialogFormVisible(value) {
                 if (!value) {
                     this.$refs['addForm'].resetFields();
