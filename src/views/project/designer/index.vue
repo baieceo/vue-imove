@@ -1,7 +1,7 @@
 <template>
     <el-container :class="$style.pageContainer">
         <el-header :class="$style.pageHeader">
-            <h1 :class="$style.pageTitle"><i class="el-icon-menu"></i>页面设计</h1>
+            <h1 :class="$style.pageTitle"><i class="el-icon-menu"></i>{{projectSchema.title}}</h1>
             <div>
                 <el-button @click="schemaVisible = true" size="mini">schema</el-button>
                 <el-button type="primary" @click="onUpdate " size="mini">保存</el-button>
@@ -81,7 +81,7 @@
                 <el-tabs v-model="setterTabName" style="height: 100%">
                     <!-- 属性 start -->
                     <el-tab-pane label="属性" name="props">
-                        <el-scrollbar style="height: calc(100vh - 120px);">
+                        <el-scrollbar style="height: calc(100vh - 160px);">
                             <div v-if="currentNode.id">
                                 <Setters />
                             </div>
@@ -93,7 +93,7 @@
                     <!-- 属性 end -->
                     <!-- 事件 start -->
                     <el-tab-pane label="事件" name="events">
-                        <el-scrollbar style="height: calc(100vh - 120px);">
+                        <el-scrollbar style="height: calc(100vh - 160px);">
                             <template v-if="currentNode.id">
                                 <Events />
                             </template>
@@ -105,7 +105,7 @@
                     <!-- 事件 end -->
                     <!-- 逻辑 start -->
                     <el-tab-pane label="逻辑" name="logicFlows">
-                        <el-scrollbar style="height: calc(100vh - 120px);">
+                        <el-scrollbar style="height: calc(100vh - 160px);">
                             <template v-if="currentNode.id">
                                 <LogicFlows />
                             </template>
@@ -548,6 +548,10 @@
 
             .el-scrollbar__view {
                 padding-right: 1px;
+            }
+
+            .el-tabs__header {
+                margin-bottom: 0;
             }
         }
     }

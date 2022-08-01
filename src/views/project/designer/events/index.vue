@@ -17,6 +17,11 @@
                     <div :class="$style['card__head']">
                         <h3 :class="$style['card__title']">{{event.title}}</h3>
                         <div :class="$style['card__tools']">
+                            <el-button type="text" size="mini" :disabled="eventIndex === 0" icon="el-icon-arrow-up"
+                                @click="() => handleEventMove(eventIndex, -1)"></el-button>
+                            <el-button type="text" size="mini" :disabled="eventIndex === currentNode.events.length - 1"
+                                icon="el-icon-arrow-down" @click="() => handleEventMove(eventIndex, 1)" style="margin-right: 5px;">
+                            </el-button>
                             <el-popconfirm title="确定删除此事件吗？" @confirm="() => handleEventRemove(event.id)">
                                 <el-button slot="reference" size="mini" type="text" icon="el-icon-delete"></el-button>
                             </el-popconfirm>
@@ -71,6 +76,17 @@
                 }
 
                 this.currentNode.events.push(event);
+            },
+            // 移动事件
+            handleEventMove(index, offset) {
+                const events = [...this.currentNode.events];
+
+                const index1 = index + offset;
+                const index2 = index;
+
+                [events[index1], events[index2]] = [events[index2], events[index1]];
+
+                this.currentNode.events = [...events];
             },
             // 删除事件
             handleEventRemove(eventId) {

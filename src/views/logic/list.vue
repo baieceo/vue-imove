@@ -14,7 +14,7 @@
                         <div v-for="subLogicFlow in scope.row.subLogicList" :key="subLogicFlow.id">{{subLogicFlow.label}}</div>
                     </template>
                     <template v-else>
-                        <div>----</div>
+                        <el-link disabled>暂无子逻辑</el-link>
                     </template>
                 </template>
             </el-table-column>
