@@ -3,7 +3,7 @@
 const Controller = require('egg').Controller;
 const moment = require('moment');
 
-class HomeController extends Controller {
+class ProjectController extends Controller {
     // 新增项目
     async add() {
         const { ctx, service } = this;
@@ -11,14 +11,14 @@ class HomeController extends Controller {
 
         const res = await service.project.add({
             ...req,
-            createTime: +new Date()
+            createTime: +new Date(),
         });
 
         ctx.body = {
             code: 0,
             data: res,
-            message: 'success'
-        }
+            message: 'success',
+        };
     }
 
     // 删除项目
@@ -31,7 +31,75 @@ class HomeController extends Controller {
         ctx.body = {
             code: 0,
             data: res,
-            message: 'success'
+            message: 'success',
+        };
+    }
+
+    // 更新项目
+    async update() {
+        const { ctx, service } = this;
+        const updateRule = {
+            id: {
+                type: 'string',
+                required: true,
+            },
+            schema: {
+                type: 'object',
+                require: true,
+            },
+        };
+
+        // 校验参数
+        ctx.validate(updateRule);
+
+        const { id, schema } = ctx.request.body;
+
+        const params = {
+            id
+        };
+        const values = {
+            schema
+        };
+
+        const res = await service.project.update(params, values);
+
+        ctx.body = {
+            code: 0,
+            data: res,
+            message: 'success',
+        };
+    }
+
+    // 查询项目
+    async query() {
+        const { ctx, service } = this;
+        const queryRule = {
+            id: {
+                type: 'string',
+                required: true,
+                message: 'id不能为空'
+            },
+        };
+        const { query } = ctx;
+
+        ctx.validate(queryRule, query);
+
+        try {
+            const record = await service.project.find(query);
+
+            ctx.body = {
+                code: 0,
+                data: record,
+                message: 'success',
+            };
+        } catch (err) {
+            ctx.logger.warn(err.errors);
+
+            ctx.body = {
+                code: 1,
+                data: null,
+                message: err.message || '查询项目失败',
+            };
         }
     }
 
@@ -46,12 +114,12 @@ class HomeController extends Controller {
         let { list, count } = await service.project.findList({}, {
             orderBy: 'desc',
             offset: (pageNo - 1) * pageSize,
-            limit: pageSize
+            limit: pageSize,
         });
 
-        list = list.map(item => ({
+        list = list.map((item) => ({
             ...item,
-            createTime: moment(item.createTime).format('YYYY/MM/DD HH:mm:ss')
+            createTime: moment(item.createTime).format('YYYY/MM/DD HH:mm:ss'),
         }));
 
         ctx.body = {
@@ -60,11 +128,12 @@ class HomeController extends Controller {
                 list,
                 total: count,
                 pageNo,
-                pageSize
+                pageSize,
             },
-            message: 'success'
+            message: 'success',
         };
     }
 }
 
-module.exports = HomeController;
+module.exports = ProjectController;
+module.exports = ProjectController;

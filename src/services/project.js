@@ -1,19 +1,6 @@
 import request from '../utils/request';
 
 /**
- * 名称: 项目列表
- * 方法: GET
- * 路径: '/api/project/list'
- */
-export async function apiProjectList(params) {
-    return request({
-        url: `/api/project/list`,
-        method: 'GET',
-        params,
-    });
-}
-
-/**
  * 名称: 新增项目
  * 方法: GET
  * 路径: '/api/project/add'
@@ -23,6 +10,20 @@ export async function apiProjectList(params) {
 export async function apiProjectAdd(params) {
     return request({
         url: `/api/project/add`,
+        method: 'POST',
+        data: params,
+    });
+}
+
+/**
+ * 名称: 删除项目
+ * 方法: GET
+ * 路径: '/api/project/remove'
+ * @param {String} id 项目ID
+ */
+export async function apiProjectRemove(params) {
+    return request({
+        url: `/api/project/remove`,
         method: 'POST',
         data: params,
     });
@@ -46,15 +47,28 @@ export async function apiProjectUpdate(params) {
 }
 
 /**
- * 名称: 删除项目
+ * 名称: 查询项目
  * 方法: GET
- * 路径: '/api/project/remove'
+ * 路径: '/api/project/query'
  * @param {String} id 项目ID
  */
-export async function apiProjectRemove(params) {
+export async function apiProjectQuery(params) {
     return request({
-        url: `/api/project/remove`,
-        method: 'POST',
-        data: params,
+        url: `/api/project/query`,
+        method: 'GET',
+        params,
+    });
+}
+
+/**
+ * 名称: 项目列表
+ * 方法: GET
+ * 路径: '/api/project/list'
+ */
+export async function apiProjectList(params) {
+    return request({
+        url: `/api/project/list`,
+        method: 'GET',
+        params,
     });
 }

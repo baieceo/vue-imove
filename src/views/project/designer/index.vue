@@ -4,6 +4,7 @@
             <h1 :class="$style.pageTitle"><i class="el-icon-menu"></i>页面设计</h1>
             <div>
                 <el-button @click="schemaVisible = true" size="mini">schema</el-button>
+                <el-button type="primary" @click="onUpdate " size="mini">保存</el-button>
             </div>
         </el-header>
         <el-container>
@@ -127,12 +128,17 @@
 
 <script>
     import Vue from 'vue';
-    import {genid} from '../../../utils/utils';
+    import {
+        genid
+    } from '../../../utils/utils';
     import Setters from './setters/index.vue';
     import Events from './events/index.vue';
     import LogicFlows from './logicFlows/index.vue';
     import CodeEditor from '../../logic/packages/core/src/components/codeEditor';
-    import projectSchema from './projectSchema';
+    import {
+        apiProjectUpdate,
+        apiProjectQuery
+    } from '../../../services/project';
 
     export default {
         name: 'Designer',
@@ -153,7 +159,11 @@
                 loading: true,
                 // 物料库
                 materials: [],
-                projectSchema,
+                // 项目schema
+                projectSchema: {
+                    componentsMap: [],
+                    componentsTree: []
+                },
                 // 环境：design/runtime
                 env: 'design',
                 // 克隆物料
@@ -166,6 +176,11 @@
                 schemaVisible: false,
                 // setter激活标签
                 setterTabName: 'logicFlows',
+            }
+        },
+        computed: {
+            id() {
+                return this.$route.query.id;
             }
         },
         async created() {
@@ -184,6 +199,29 @@
             }
         },
         methods: {
+            // 获取项目数据
+            async fetchData() {
+                const loading = this.$message({
+                    type: 'info',
+                    iconClass: 'el-icon-loading',
+                    message: '获取数据中，请稍候',
+                    duration: 0
+                });
+
+                try {
+                    const {
+                        schema
+                    } = await apiProjectQuery({
+                        id: this.id
+                    });
+
+                    this.projectSchema = schema;
+                } catch (e) {
+                    console.error('获取项目数据异常', e);
+                } finally {
+                    loading.close();
+                }
+            },
             // 开始获取当前时间
             startNowTime() {
                 this.getNowTime();
@@ -393,6 +431,37 @@
                     // cancel log to avoid wasting Console outputs
                 }
             },
+            // 更新
+            async onUpdate() {
+                const {
+                    query: {
+                        id
+                    }
+                } = this.$route;
+                const loading = this.$message({
+                    type: 'info',
+                    iconClass: 'el-icon-loading',
+                    message: '保存中，请稍候',
+                    duration: 0
+                });
+
+                try {
+                    const params = {
+                        id,
+                        schema: {
+                            ...this.projectSchema
+                        }
+                    };
+
+                    await apiProjectUpdate(params);
+
+                    this.$message.success('保存成功');
+                } catch (e) {
+                    console.error('保存异常', e);
+                } finally {
+                    loading.close();
+                }
+            }
         },
         watch: {
             'currentNode.id'(value) {
@@ -400,6 +469,10 @@
                     // 设置大纲树选中
                     this.$refs['materialsTree'].setCurrentKey(value);
                 });
+            },
+            '$route.query.id': {
+                handler: 'fetchData',
+                immediate: true
             },
             schemaVisible(value) {
                 if (value) {

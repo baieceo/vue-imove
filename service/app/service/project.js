@@ -16,6 +16,20 @@ class ProjectService extends Service {
         return res;
     }
 
+    // 更新项目
+    async update(params = {}, values = {}) {
+        const res = await this.ctx.app.lowdb.model('project').findAndUpdate(params, values);
+
+        return res;
+    }
+
+    // 查询项目
+    async find(params = {}) {
+        const res = await this.ctx.app.lowdb.model('project').findOne(params);
+
+        return res;
+    }
+
     // 查找项目列表
     async findList(params = {}, options = {}) {
         const defaultOptions = {

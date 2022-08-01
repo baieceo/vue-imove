@@ -12,7 +12,7 @@ const codeMessage = {
     404: '发出的请求针对的是不存在的记录，服务器没有进行操作。',
     406: '请求的格式不可得。',
     410: '请求的资源被永久删除，且不会再得到的。',
-    422: '当创建一个对象时，发生一个验证错误。',
+    422: '请求参数校验失败。',
     500: '服务器发生错误，请检查服务器。',
     502: '网关错误。',
     503: '服务不可用，服务器暂时过载或维护。',
@@ -39,8 +39,14 @@ request.interceptors.response.use(async(response) => {
         return Promise.reject(response);
     }
 
+    const { code, data, message } = response.data;
+
     // 业务异常
-    const { data } = response.data;
+    if (code !== 0) {
+        ElementUI.Message.error(message);
+
+        return Promise.reject(response.data);
+    }
 
     return Promise.resolve(data);
 }, error => {

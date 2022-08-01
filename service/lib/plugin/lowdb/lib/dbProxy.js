@@ -29,20 +29,20 @@ class dbModel {
         return this.db.get('posts')
             .push({ id: shortid.generate(), ...obj })
             .write()
-            .id
+            .id;
     }
     findAndUpdate(query, set) {
         return this.db.get('posts')
             .find(query)
             .assign(set)
-            .write()
+            .write();
     }
     remove(query) {
         return this.db.get('posts')
             .remove(query)
-            .write()
-            // db.unset('user.name')
-            //     .write()
+            .write();
+        // db.unset('user.name')
+        //     .write()
     }
     removeAll() {
         this.db.set('posts', [])
@@ -61,23 +61,24 @@ class dbModel {
             })
             .drop(option.offset)
             .take(option.limit)
-            .value()
+            .value();
     }
     count(query) {
         return this.db.get('posts')
             .filter(query)
-            .size()
+            .size();
     }
     map(key) {
         return this.db.get('posts')
             .map(key)
-            .value()
+            .value();
     }
     findOne(query, option = { sortBy: 'id', limit: 1 }) {
         return this.db.get('posts')
             .filter(query)
             .sortBy(option.sortBy)
             .take(option.limit)
-            .value()
+            .head()
+            .value();
     }
 }
