@@ -35,6 +35,7 @@ const routes = [{
         }]
     }, {
         path: 'logic/designer',
+        name: 'logicDesigner',
         component: LogicDesignerView
     }, {
         path: 'schema/designer',

@@ -44,6 +44,7 @@ const save = (
     cellType,
     actionType,
     data,
+    modifyGraphMethod
 ) => {
     enqueue(cellType, actionType, data);
 
@@ -55,13 +56,13 @@ const save = (
         if (pushedActions.length > 0) {
             flowChart.trigger('graph:change:modify');
 
-            modifyGraph(projectId, memQueue)
-                .then((res) => {
+            (modifyGraphMethod || modifyGraph)(projectId, memQueue)
+            .then(( /* res */ ) => {
                     memQueue.splice(0, pushedActions.length);
 
                     flowChart.trigger('graph:modified', { success: true });
 
-                    console.log('graph:modified', res);
+                    // console.log('graph:modified', res);
                 })
                 .catch((error) => {
                     flowChart.trigger('graph:modified', { success: true, error: error });
@@ -90,13 +91,13 @@ const edgeActionEventMap = {
     [ActionType.update]: ['edge:moved'],
 };
 
-export const registerServerStorage = (flowChart) => {
+export const registerServerStorage = (flowChart, modifyGraphMethod) => {
     Object.keys(nodeActionEventMap).forEach((actionType) => {
         const events = nodeActionEventMap[actionType];
 
         events.forEach((event) => {
             flowChart.on(event, (args) => {
-                save(flowChart, 'node', actionType, args.node.toJSON());
+                save(flowChart, 'node', actionType, args.node.toJSON(), modifyGraphMethod);
             });
         });
     });
@@ -106,9 +107,9 @@ export const registerServerStorage = (flowChart) => {
 
         events.forEach((event) => {
             flowChart.on(event, (args) => {
-                console.log('edge event:', event, 'args:', args);
+                // console.log('edge event:', event, 'args:', args);
 
-                save(flowChart, 'edge', actionType, args.edge.toJSON());
+                save(flowChart, 'edge', actionType, args.edge.toJSON(), modifyGraphMethod);
             });
         });
     });

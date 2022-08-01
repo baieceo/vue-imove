@@ -8,22 +8,25 @@
             <el-table-column type="index" width="50" label="序号"></el-table-column>
             <el-table-column property="title" label="标题"></el-table-column>
             <el-table-column property="name" label="名称"></el-table-column>
-            <el-table-column property="createTime" label="时间" width="160"></el-table-column>
+            <el-table-column property="createTime" label="创建时间" width="160"></el-table-column>
             <el-table-column fixed="right" label="操作" width="120">
                 <template slot-scope="scope">
-                    <el-button @click.native.prevent="editRow(scope.$index, tableData)" type="text" size="small" style="margin-right: 5px;">
+                    <el-button @click.native.prevent="editRow(scope.$index, tableData)" type="text" size="small"
+                        style="margin-right: 5px;">
                         编辑
                     </el-button>
 
-                    <el-popconfirm title="确定删除此项目吗？" icon="el-icon-info" icon-color="red" @confirm="deleteRow(scope.$index, tableData)">
+                    <el-popconfirm title="确定删除此项目吗？" icon="el-icon-info" icon-color="red"
+                        @confirm="deleteRow(scope.$index, tableData)">
                         <el-button slot="reference" type="text" size="small">删除</el-button>
                     </el-popconfirm>
                 </template>
             </el-table-column>
         </el-table>
 
-        <el-pagination background layout="prev, pager, next, sizes, total" :total="pagination.total" :page-size.sync="pagination.pageSize"
-            :current-page.sync="pagination.pageNo" @size-change="fetchData" @current-change="fetchData" style="text-align: center;"></el-pagination>
+        <el-pagination background layout="prev, pager, next, sizes, total" :total="pagination.total"
+            :page-size.sync="pagination.pageSize" :current-page.sync="pagination.pageNo" @size-change="fetchTableData"
+            @current-change="fetchTableData" style="text-align: center;"></el-pagination>
 
         <el-dialog title="新建项目" :visible.sync="dialogFormVisible" width="500px" destroy-on-close>
             <el-form ref="addForm" :model="form" :rules="rules" size="mini" label-width="120px">
@@ -48,6 +51,9 @@
         apiProjectList,
         apiProjectRemove
     } from '../../services/project';
+    import {
+        genid
+    } from '../../utils/utils';
 
     export default {
         name: 'ProjectList',
@@ -78,11 +84,11 @@
             }
         },
         created() {
-            this.fetchData();
+            this.fetchTableData();
         },
         methods: {
             // 获取数据
-            async fetchData() {
+            async fetchTableData() {
                 try {
                     this.tableLoading = true;
 
@@ -105,7 +111,9 @@
             },
             // 编辑
             editRow(index, rows) {
-                const {id} = rows[index];
+                const {
+                    id
+                } = rows[index];
 
                 this.$router.push({
                     name: 'projectDesigner',
@@ -116,9 +124,12 @@
             },
             // 删除
             async deleteRow(index, rows) {
-                const { id } = rows[index];
+                const {
+                    id
+                } = rows[index];
                 const loading = this.$message({
                     type: 'info',
+                    iconClass: 'el-icon-loading',
                     message: '删除中，请稍候',
                     duration: 0
                 });
@@ -128,20 +139,42 @@
                         id
                     });
 
-                    this.fetchData();
+                    this.fetchTableData();
                 } catch (e) {
                     console.error('删除项目失败', e);
                 } finally {
                     loading.close();
                 }
             },
-            // 新增确定
+            // 新增项目
             handleAddSubmit() {
+                // 默认项目数据
+                const defaultProjectSchema = {
+                    version: '1.0.0',
+                    componentsMap: [{
+                        package: './materials/Page/index.vue',
+                        componentName: 'Page'
+                    }],
+                    componentsTree: [{
+                        id: genid(),
+                        componentName: 'Page',
+                        props: {
+                            style: {
+                                height: '100%'
+                            }
+                        },
+                        children: []
+                    }]
+                };
+
                 this.$refs['addForm'].validate(async (valid) => {
                     if (valid) {
-                        await apiProjectAdd(this.form);
+                        await apiProjectAdd({
+                            ...this.form,
+                            schema: defaultProjectSchema
+                        });
 
-                        this.fetchData();
+                        this.fetchTableData();
 
                         this.$message.success('操作成功');
 

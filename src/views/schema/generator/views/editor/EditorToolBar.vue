@@ -93,7 +93,7 @@ export default {
     .listItem {
         position: relative;
         margin-top: 10px;
-        width: 47%;
+        width: calc(50% - 20px);
         max-width: 120px;  /* 避免拖动ghost样式异常 */
         min-height: 36px;
         line-height: 1.5;

@@ -1,11 +1,11 @@
 <template>
     <Layout :flowChart="flowChart">
         <template #header>
-            <Header :flowChart="flowChart" />
+            <Header :flowChart="flowChart" :connectStatus="connectStatus" :connect-method="connectMethod" />
         </template>
 
         <template #toolBar>
-            <ToolBar :flowChart="flowChart" />
+            <ToolBar :flowChart="flowChart" :modifyStatus="modifyStatus" :save-method="saveMethod" />
         </template>
 
         <template #sideBar>
@@ -17,7 +17,8 @@
         </template>
 
         <template #flowChart>
-            <FlowChart @ready="onFlowChartReady" />
+            <FlowChart @ready="onFlowChartReady" :query-graph-method="queryGraphMethod"
+                :modify-graph-method="modifyGraphMethod" />
         </template>
     </Layout>
 </template>
@@ -41,6 +42,34 @@
             SideBar,
             FlowChart,
             SettingBar
+        },
+        props: {
+            // 是否显示修改状态
+            modifyStatus: {
+                type: Boolean,
+                default: true
+            },
+            // 是否显示连接状态
+            connectStatus: {
+                type: Boolean,
+                default: true
+            },
+            // 保存方法，返回Promise
+            saveMethod: {
+                type: Function
+            },
+            // 连接方法，返回Promise
+            connectMethod: {
+                type: Function
+            },
+            // 查询图形方法，返回Promise
+            queryGraphMethod: {
+                type: Function
+            },
+            // 修改图形方法，返回Promise
+            modifyGraphMethod: {
+                type: Function
+            }
         },
         data() {
             return {

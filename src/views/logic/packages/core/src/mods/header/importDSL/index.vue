@@ -1,7 +1,7 @@
 <template>
   <el-upload class="container" accept=".json" :disabled="disabled" :show-file-list="false" action=""
     :before-upload="beforeUpload">
-    <el-tooltip effect="dark" content="导如DSL" placement="top">
+    <el-tooltip effect="dark" content="导入DSL" placement="top">
       <el-button type="text" icon="icon-sam icon-sam-daoru" size="mini"></el-button>
     </el-tooltip>
   </el-upload>

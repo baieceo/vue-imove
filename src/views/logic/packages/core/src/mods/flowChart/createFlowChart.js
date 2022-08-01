@@ -122,7 +122,7 @@ const registerShortcuts = (flowChart) => {
     });
 };
 
-const createFlowChart = (container, miniMapContainer) => {
+const createFlowChart = (container, miniMapContainer, modifyGraphMethod) => {
     const flowChart = new Graph({
         container,
         rotating: false,
@@ -226,7 +226,7 @@ const createFlowChart = (container, miniMapContainer) => {
 
     registerEvents(flowChart);
     registerShortcuts(flowChart);
-    registerServerStorage(flowChart);
+    registerServerStorage(flowChart, modifyGraphMethod);
 
     return flowChart;
 };

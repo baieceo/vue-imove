@@ -34,7 +34,7 @@ module.exports = appInfo => {
 
     // lowdb
     config.lowdb = {
-        path: 'database/',
+        path: 'run/',
         app: true,
         agent: true
     };

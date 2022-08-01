@@ -46,6 +46,7 @@
 
 .editModal .tabPane .logicFormGenerator ::v-deep .logicFormGeneratorToolBarBoxClass {
   padding-left: 20px;
+  padding-right: 20px;
 }
 
 .editModal .tabPane .logicFormGenerator ::v-deep .logicFormGeneratorContentBox {

@@ -12,35 +12,39 @@
             </el-dropdown>
         </div>
         <div :class="$style['cards__body']">
-            <div :class="$style['card']" v-for="(logicFlow) in currentNode.logicFlows" :key="logicFlow.key">
-                <div :class="$style['card__head']">
-                    <h3 :class="$style['card__title']">{{logicFlow.title}}</h3>
-                    <div :class="$style['card__tools']">
-                        <el-button size="mini" type="text" icon="el-icon-delete"
-                            @click="() => handleLogicFlowRemove(logicFlow.id)"></el-button>
+            <template v-if="currentNode && currentNode.logicFlows && currentNode.logicFlows.length">
+                <div :class="$style['card']" v-for="(logicFlow) in currentNode.logicFlows" :key="logicFlow.key">
+                    <div :class="$style['card__head']">
+                        <h3 :class="$style['card__title']">{{logicFlow.title}}</h3>
+                        <div :class="$style['card__tools']">
+                            <el-popconfirm title="确定删除此逻辑吗？" @confirm="() => handleLogicFlowRemove(logicFlow.id)">
+                                <el-button slot="reference" size="mini" type="text" icon="el-icon-delete"></el-button>
+                            </el-popconfirm>
+                        </div>
+                    </div>
+                    <div :class="$style['card__body']">
+                        <div :class="$style['card__item']">
+                            <div :class="$style['card__item-head']">
+                                逻辑标识：
+                            </div>
+                            <div :class="$style['card__item-body']">
+                                <el-input size="mini" v-model="logicFlow.id" />
+                            </div>
+                        </div>
+                        <div :class="$style['card__item']">
+                            <div :class="$style['card__item-head']">
+                                场景名称：
+                            </div>
+                            <div :class="$style['card__item-body']">
+                                <el-select size="mini" v-model="logicFlow.id">
+                                    <el-option>场景1</el-option>
+                                </el-select>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div :class="$style['card__body']">
-                    <div :class="$style['card__item']">
-                        <div :class="$style['card__item-head']">
-                            逻辑标识：
-                        </div>
-                        <div :class="$style['card__item-body']">
-                            <el-input size="mini" v-model="logicFlow.id" />
-                        </div>
-                    </div>
-                    <div :class="$style['card__item']">
-                        <div :class="$style['card__item-head']">
-                            场景名称：
-                        </div>
-                        <div :class="$style['card__item-body']">
-                            <el-select size="mini" v-model="logicFlow.id">
-                                <el-option>场景1</el-option>
-                            </el-select>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </template>
+            <el-empty v-else description="暂无逻辑"></el-empty>
         </div>
     </div>
 </template>

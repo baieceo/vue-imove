@@ -21,6 +21,9 @@
     props: {
       flowChart: {
         type: Graph
+      },
+      saveMethod: {
+        type: Function
       }
     },
     data() {
@@ -29,10 +32,16 @@
       };
     },
     methods: {
-      handler(flowChart) {
-        shortcuts.save.handler(flowChart);
+      async handler(flowChart) {
+        try {
+          await shortcuts.save.handler(flowChart, this.saveMethod);
 
-        this.$message.success('保存成功');
+          // this.$message.success('保存成功');
+        } catch (err) {
+          console.error(err);
+          
+          // this.$message.error(err.message || '保存失败');
+        }
       }
     }
   }

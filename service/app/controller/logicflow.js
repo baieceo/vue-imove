@@ -3,25 +3,25 @@
 const Controller = require('egg').Controller;
 const moment = require('moment');
 
-class ProjectController extends Controller {
-    // 新增项目
+class LogicFlowController extends Controller {
+    // 新增逻辑
     async add() {
         const { ctx, service } = this;
         const req = Object.assign(ctx.request.body);
         const addRule = {
             name: {
                 type: 'string',
-                required: true
+                required: true,
             },
-            schema: {
+            dsl: {
                 type: 'object',
-                required: true
-            }
+                required: true,
+            },
         };
 
         ctx.validate(addRule);
 
-        const res = await service.project.add({
+        const res = await service.logicflow.add({
             ...req,
             createTime: +new Date(),
         });
@@ -33,12 +33,12 @@ class ProjectController extends Controller {
         };
     }
 
-    // 删除项目
+    // 删除逻辑
     async remove() {
         const { ctx, service } = this;
         const req = Object.assign(ctx.request.body);
 
-        const res = await service.project.remove(req);
+        const res = await service.logicflow.remove(req);
 
         ctx.body = {
             code: 0,
@@ -47,7 +47,7 @@ class ProjectController extends Controller {
         };
     }
 
-    // 更新项目
+    // 更新逻辑
     async update() {
         const { ctx, service } = this;
         const updateRule = {
@@ -55,25 +55,22 @@ class ProjectController extends Controller {
                 type: 'string',
                 required: true,
             },
-            schema: {
-                type: 'object',
-                require: true,
-            },
         };
 
         // 校验参数
         ctx.validate(updateRule);
 
-        const { id, schema } = ctx.request.body;
+        const { id } = ctx.request.body;
+        const data = {...ctx.request.body };
+
+        delete data.id;
 
         const params = {
-            id
+            id,
         };
-        const values = {
-            schema
-        };
+        const values = data;
 
-        const res = await service.project.update(params, values);
+        const res = await service.logicflow.update(params, values);
 
         ctx.body = {
             code: 0,
@@ -82,14 +79,14 @@ class ProjectController extends Controller {
         };
     }
 
-    // 查询项目
+    // 查询逻辑
     async query() {
         const { ctx, service } = this;
         const queryRule = {
             id: {
                 type: 'string',
                 required: true,
-                message: 'id不能为空'
+                message: 'id不能为空',
             },
         };
         const { query } = ctx;
@@ -97,7 +94,7 @@ class ProjectController extends Controller {
         ctx.validate(queryRule, query);
 
         try {
-            const record = await service.project.find(query);
+            const record = await service.logicflow.find(query);
 
             ctx.body = {
                 code: 0,
@@ -110,7 +107,7 @@ class ProjectController extends Controller {
             ctx.body = {
                 code: 1,
                 data: null,
-                message: err.message || '查询项目失败',
+                message: err.message || '查询逻辑失败',
             };
         }
     }
@@ -123,7 +120,7 @@ class ProjectController extends Controller {
         const pageSize = query.pageSize ? Number(query.pageSize) : 10;
 
         // 调用 Service 进行业务处理
-        let { list, count } = await service.project.findList({}, {
+        let { list, count } = await service.logicflow.findList({}, {
             orderBy: 'desc',
             offset: (pageNo - 1) * pageSize,
             limit: pageSize,
@@ -147,4 +144,4 @@ class ProjectController extends Controller {
     }
 }
 
-module.exports = ProjectController;
+module.exports = LogicFlowController;

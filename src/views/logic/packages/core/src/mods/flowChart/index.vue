@@ -46,6 +46,12 @@
         default () {
           return () => {};
         }
+      },
+      queryGraphMethod: {
+        type: Function
+      },
+      modifyGraphMethod: {
+        type: Function
       }
     },
     data() {
@@ -56,7 +62,7 @@
     },
     mounted() {
       if (this.$refs['graphRef'] && this.$refs['wrapperRef']) {
-        const flowChart = createFlowChart(this.$refs['graphRef'], this.$refs['wrapperRef']);
+        const flowChart = createFlowChart(this.$refs['graphRef'], this.$refs['wrapperRef'], this.modifyGraphMethod);
 
         flowChart.on('graph:showContextMenu', this.flowChartShowHandler);
         flowChart.on('graph:hideContextMenu', this.flowChartHideHandler);
@@ -85,7 +91,8 @@
         const {
           projectId
         } = parseQuery();
-        queryGraph(projectId)
+
+        (this.queryGraphMethod || queryGraph)(projectId)
           .then((res) => {
             const {
               data: dsl

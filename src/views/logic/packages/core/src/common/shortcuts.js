@@ -8,9 +8,8 @@ import { Message } from 'element-ui';
 const shortcuts = {
     save: {
         keys: 'meta + s',
-        handler(flowChart) {
-            localSave({ dsl: flowChart.toJSON() });
-            return false;
+        handler(flowChart, saveMethod) {
+            return (saveMethod || localSave)({ dsl: flowChart.toJSON() });
         },
     },
     undo: {

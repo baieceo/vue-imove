@@ -2,9 +2,9 @@
   <div class="container">
     <div v-for="(group, index) in widgets" :key="index" class="group">
       <component v-for="(ToolItem, ToolItemIndex) in group" :key="ToolItemIndex" :flowChart="flowChart"
-        :is="ToolItem.name" />
+        :saveMethod="saveMethod" :is="ToolItem.name" />
     </div>
-    <ModifyStatus :flowChart="flowChart" />
+    <ModifyStatus v-if="modifyStatus" :flowChart="flowChart" />
   </div>
 </template>
 
@@ -26,6 +26,12 @@
     props: {
       flowChart: {
         type: Graph
+      },
+      saveMethod: {
+        type: Function
+      },
+      modifyStatus: {
+        type: Boolean
       }
     },
     data() {

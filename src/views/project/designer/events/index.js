@@ -11,7 +11,10 @@ export const types = [{
         name: Custom.name,
         title: '自定义代码',
         value: '',
-        default: 'function () {}',
+        default: {
+            type: 'click',
+            code: 'function () {}'
+        },
     },
 ];
 

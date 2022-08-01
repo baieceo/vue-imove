@@ -1,10 +1,19 @@
 <template>
     <div :class="$style['card__item']">
         <div :class="$style['card__item-head']">
-            自定义点击代码：
+            事件类型：
         </div>
         <div :class="$style['card__item-body']">
-            <el-input type="textarea" size="mini" :rows="5" :value="value" @input="handleInput" />
+            <el-select size="mini" :value="value.type" @change="(value) => handleChange('type', value)">
+                <el-option v-for="item in types" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+        </div>
+        <div :class="$style['card__item-head']">
+            事件代码：
+        </div>
+        <div :class="$style['card__item-body']">
+            <el-input type="textarea" size="mini" :rows="5" :value="value.code"
+                @input="(value) => handleChange('code', value)" />
         </div>
     </div>
 </template>
@@ -13,11 +22,34 @@
     export default {
         name: 'event-custom',
         props: {
-            value: String
+            value: {
+                type: Object,
+                default () {
+                    return {
+                        type: 'click',
+                        code: 'function () {}'
+                    }
+                }
+            }
+        },
+        data() {
+            return {
+                types: [{
+                    label: '点击',
+                    value: 'click'
+                }, {
+                    label: '挂载',
+                    value: 'mounted'
+                }]
+            }
         },
         methods: {
-            handleInput(value) {
-                this.$emit('update:value', value);
+            handleChange(key, value) {
+                const data = { ...this.value };
+
+                data[key] = value;
+
+                this.$emit(`update:value`, data);
             }
         }
     };

@@ -175,7 +175,7 @@
                 // schema可见
                 schemaVisible: false,
                 // setter激活标签
-                setterTabName: 'logicFlows',
+                setterTabName: 'events',
             }
         },
         computed: {
