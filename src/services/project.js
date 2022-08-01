@@ -2,7 +2,7 @@ import request from '../utils/request';
 
 /**
  * 名称: 新增项目
- * 方法: GET
+ * 方法: POST
  * 路径: '/api/project/add'
  * @param {String} name 项目名称
  * @param {String} title 项目标题
@@ -17,7 +17,7 @@ export async function apiProjectAdd(params) {
 
 /**
  * 名称: 删除项目
- * 方法: GET
+ * 方法: POST
  * 路径: '/api/project/remove'
  * @param {String} id 项目ID
  */
@@ -31,7 +31,7 @@ export async function apiProjectRemove(params) {
 
 /**
  * 名称: 更新项目
- * 方法: GET
+ * 方法: POST
  * 路径: '/api/project/update'
  * @param {String} id 项目ID
  * @param {String} name 项目名称
@@ -70,5 +70,19 @@ export async function apiProjectList(params) {
         url: `/api/project/list`,
         method: 'GET',
         params,
+    });
+}
+
+/**
+ * 名称: 发布项目
+ * 方法: POST
+ * 路径: '/api/project/publish'
+ * @param {String} id 项目ID
+ */
+export async function apiProjectPublish(params) {
+    return request({
+        url: `/api/project/publish`,
+        method: 'POST',
+        data: params,
     });
 }

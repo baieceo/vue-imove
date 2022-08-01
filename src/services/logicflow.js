@@ -2,7 +2,7 @@ import request from '../utils/request';
 
 /**
  * 名称: 新增逻辑
- * 方法: GET
+ * 方法: POST
  * 路径: '/api/logicflow/add'
  * @param {String} name 逻辑名称
  * @param {String} title 逻辑标题
@@ -17,7 +17,7 @@ export async function apiLogicflowAdd(params) {
 
 /**
  * 名称: 删除逻辑
- * 方法: GET
+ * 方法: POST
  * 路径: '/api/logicflow/remove'
  * @param {String} id 逻辑ID
  */
@@ -31,7 +31,7 @@ export async function apiLogicflowRemove(params) {
 
 /**
  * 名称: 更新逻辑
- * 方法: GET
+ * 方法: POST
  * 路径: '/api/logicflow/update'
  * @param {String} id 逻辑ID
  * @param {String} name 逻辑名称

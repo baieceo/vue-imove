@@ -1,9 +1,12 @@
 <template>
     <el-container :class="$style.pageContainer">
         <el-header :class="$style.pageHeader">
-            <h1 :class="$style.pageTitle"><i class="el-icon-menu"></i>{{projectSchema.title}}</h1>
-            <div>
+            <h1 :class="$style.pageTitle"><i class="el-icon-menu"></i>{{projectTitle}}</h1>
+            <div :class="$style.pageHeaderTools">
                 <el-button @click="schemaVisible = true" size="mini">schema</el-button>
+                <el-popconfirm title="确定发布吗？" @confirm="onPublish">
+                    <el-button slot="reference" type="primary" size="mini" plain>发布</el-button>
+                </el-popconfirm>
                 <el-button type="primary" @click="onUpdate " size="mini">保存</el-button>
             </div>
         </el-header>
@@ -137,7 +140,8 @@
     import CodeEditor from '../../logic/packages/core/src/components/codeEditor';
     import {
         apiProjectUpdate,
-        apiProjectQuery
+        apiProjectQuery,
+        apiProjectPublish
     } from '../../../services/project';
 
     export default {
@@ -159,6 +163,8 @@
                 loading: true,
                 // 物料库
                 materials: [],
+                // 项目名称
+                projectTitle: '',
                 // 项目schema
                 projectSchema: {
                     componentsMap: [],
@@ -210,11 +216,13 @@
 
                 try {
                     const {
+                        title,
                         schema
                     } = await apiProjectQuery({
                         id: this.id
                     });
 
+                    this.projectTitle = title;
                     this.projectSchema = schema;
                 } catch (e) {
                     console.error('获取项目数据异常', e);
@@ -461,6 +469,25 @@
                 } finally {
                     loading.close();
                 }
+            },
+            // 发布
+            async onPublish() {
+                const loading = this.$message({
+                    type: 'info',
+                    iconClass: 'el-icon-loading',
+                    message: '发布中，请稍候',
+                    duration: 0
+                });
+
+                try {
+                    await apiProjectPublish({
+                        id: this.id
+                    });
+                } catch (e) {
+                    console.log('发布异常', e);
+                } finally {
+                    loading.close();
+                }
             }
         },
         watch: {
@@ -521,6 +548,14 @@
             top: 2px;
             margin-right: 10px;
             font-size: 20px;
+        }
+    }
+
+    .pageHeaderTools {
+        :global {
+            .el-button {
+                margin-left: 10px;
+            }
         }
     }
 

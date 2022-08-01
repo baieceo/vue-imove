@@ -9,6 +9,11 @@
                                 项目管理
                             </span>
                         </el-menu-item>
+                        <el-menu-item index="/material/list">
+                            <span slot="title">
+                                物料管理
+                            </span>
+                        </el-menu-item>
                         <el-menu-item index="/logic/list">
                             <span slot="title">
                                 逻辑管理

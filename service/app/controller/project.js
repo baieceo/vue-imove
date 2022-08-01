@@ -145,6 +145,20 @@ class ProjectController extends Controller {
             message: 'success',
         };
     }
+
+    // 发布项目
+    async publish() {
+        const { ctx, service } = this;
+        const publishRule = {
+            id: {
+                type: 'string'
+            }
+        };
+
+        ctx.validate(publishRule);
+
+
+    }
 }
 
 module.exports = ProjectController;

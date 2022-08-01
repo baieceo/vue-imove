@@ -6,6 +6,7 @@ import LogicListView from '../views/logic/list.vue';
 import LogicDesignerView from '../views/logic/designer/src/pages/index.vue';
 import ProjectListView from '../views/project/list.vue';
 import ProjectDesignerView from '../views/project/designer/index.vue';
+import MaterialListView from '../views/material/list.vue';
 import SchemaDesignerView from '../views/schema/index.vue';
 
 Vue.use(VueRouter);
@@ -26,6 +27,13 @@ const routes = [{
         path: 'project/designer',
         name: 'projectDesigner',
         component: ProjectDesignerView
+    }, {
+        path: 'material/list',
+        component: LayoutListView,
+        children: [{
+            path: '/',
+            component: MaterialListView
+        }]
     }, {
         path: 'logic/list',
         component: LayoutListView,
