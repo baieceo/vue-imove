@@ -24,7 +24,7 @@ module.exports = (app) => {
     // 项目列表
     router.get('/project/list', controller.project.list);
     // 发布项目
-    router.get('/project/list', controller.project.list);
+    router.get('/project/publish', controller.project.publish);
 
     /** 逻辑 */
     // 新增逻辑
@@ -37,4 +37,16 @@ module.exports = (app) => {
     router.get('/logicflow/query', controller.logicflow.query);
     // 逻辑列表
     router.get('/logicflow/list', controller.logicflow.list);
+
+    /** 物料 */
+    // 新增物料
+    router.post('/material/add', controller.material.add);
+    // 删除物料
+    router.post('/material/remove', controller.material.remove);
+    // 更新物料
+    router.post('/material/update', controller.material.update);
+    // 查询物料
+    router.get('/material/query', controller.material.query);
+    // 物料列表
+    router.get('/material/list', controller.material.list);
 };

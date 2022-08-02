@@ -4,8 +4,8 @@
         <div v-loading="loading" :class="$style['upload-file__uploader']">
             <el-upload :action="action" list-type="picture-card" name="file" :data="data" :on-success="onSuccess"
                 :accept="accept" :show-file-list="false" :on-progress="() => loading = true"
-                :on-error="() => loading = false">
-                <template v-if="value">
+                :on-error="() => loading = false" :before-upload="beforeUpload">
+                <template v-if="value && isImage">
                     <img class="el-upload-list__item-thumbnail" :src="value" alt="" />
                     <span class="el-upload-list__item-actions">
                         <span class="el-upload-list__item-preview">
@@ -13,10 +13,17 @@
                         </span>
                     </span>
                 </template>
-                <i v-else class="el-icon-plus"></i>
+                <template v-if="value && !isImage">
+                    <span>{{filename}}</span>
+                    <span class="el-upload-list__item-actions">
+                        <span class="el-upload-list__item-preview">
+                            <i class="el-icon-zoom-in" @click.stop="handlePreview"></i>
+                        </span>
+                    </span>
+                </template>
+                <i v-if="!value" class="el-icon-plus"></i>
             </el-upload>
         </div>
-
 
         <el-dialog title="预览" :visible.sync="dialogVisible" append-to-body>
             <img width="100%" :src="value" alt="" />
@@ -25,12 +32,15 @@
 </template>
 
 <script>
+    const imageExtName = ['.jpg', '.png', '.svg', '.gif'];
+
     export default {
         name: 'UploadFileField',
         props: {
+            beforeUpload: Function,
             accept: {
                 type: String,
-                default: '.jpg, .png, .svg, .gif'
+                default: imageExtName.join(',')
             },
             action: {
                 type: String,
@@ -60,16 +70,40 @@
                 dialogVisible: false
             }
         },
+        computed: {
+            filename() {
+                const [, filename = this.value] = this.value.match(/(\w+\.\w+)[^\\.]*$/) || [];
+
+                return filename;
+            },
+            extname() {
+                const [extname = this.filename] = this.filename.match(/\.\w+$/) || [];
+
+                return extname;
+            },
+            isImage() {
+                if (imageExtName.includes(this.extname)) {
+                    return true;
+                }
+
+                return false;
+            }
+        },
         methods: {
             onInput(value) {
                 this.$emit('input', value);
             },
             onSuccess(response) {
                 this.loading = false;
+
                 this.$emit('input', response.data.url);
             },
             handlePreview() {
-                this.dialogVisible = true;
+                if (this.isImage) {
+                    this.dialogVisible = true;
+                } else {
+                    window.open(this.value);
+                }
             },
             handleRemove() {
                 this.$emit('input', '');

@@ -6,14 +6,37 @@
 
         <el-table v-loading="tableLoading" :data="tableData" size="mini" border style="margin-bottom: 20px;">
             <el-table-column type="index" width="50" label="序号"></el-table-column>
-            <el-table-column property="title" label="场景标题"></el-table-column>
-            <el-table-column property="name" label="场景名称"></el-table-column>
-            <el-table-column property="createTime" label="创建时间" width="160"></el-table-column>
-            <el-table-column fixed="right" label="操作" width="120">
+            <el-table-column property="componentName" label="名称"></el-table-column>
+            <el-table-column property="title" label="中文名"></el-table-column>
+            <el-table-column property="icon" label="图标" width="60">
                 <template slot-scope="scope">
-                    <el-button @click.native.prevent="gotoRow(scope.$index, tableData)" type="text" size="small">编排
-                    </el-button>
-
+                    <a :href="scope.row.icon" target="_blank"><img :src="scope.row.icon" alt=""
+                            style="height: 23px; object-fit: contain;" /></a>
+                </template>
+            </el-table-column>
+            <el-table-column property="screenshot" label="缩略图" width="60">
+                <template slot-scope="scope">
+                    <a :href="scope.row.icon" target="_blank"><img :src="scope.row.screenshot" alt=""
+                            style="height: 23px; object-fit: contain;" /></a>
+                </template>
+            </el-table-column>
+            <el-table-column property="npm.package" label="库名"></el-table-column>
+            <el-table-column property="npm.main" label="路径">
+                <template slot-scope="scope">
+                    <el-link :href="scope.row.npm.main" type="primary" target="_blank" :underline="false">
+                        {{scope.row.npm.main}}</el-link>
+                </template>
+            </el-table-column>
+            <el-table-column property="status" label="状态" width="60">
+                <template slot-scope="scope">
+                    <span>
+                        {{scope.row.status === 'enabled' ? '启用' : '禁用'}}
+                    </span>
+                </template>
+            </el-table-column>
+            <el-table-column property="createTime" label="创建时间" width="140"></el-table-column>
+            <el-table-column fixed="right" label="操作" width="80">
+                <template slot-scope="scope">
                     <el-button @click.native.prevent="editRow(scope.$index, tableData)" type="text" size="small"
                         style="margin-right: 5px;">编辑</el-button>
 
@@ -31,7 +54,7 @@
 
         <el-drawer :title="formTitle" :visible.sync="formVisible" destroy-on-close :size="500" direction="rtl">
             <div :class="$style['drawer__content']">
-                <el-form ref="addForm" :model="form" :rules="rules" size="mini" label-width="120px">
+                <el-form ref="materialForm" :model="form" :rules="rules" size="mini" label-width="120px">
                     <el-form-item prop="componentName" label="名称">
                         <el-input v-model="form.componentName"></el-input>
                     </el-form-item>
@@ -39,7 +62,7 @@
                         <el-input v-model="form.title"></el-input>
                     </el-form-item>
                     <el-form-item prop="icon" label="图标">
-                        <el-input v-model="form.icon"></el-input>
+                        <upload-file-field v-model="form.icon" />
                     </el-form-item>
                     <el-form-item prop="screenshot" label="缩略图">
                         <upload-file-field v-model="form.screenshot" />
@@ -49,7 +72,11 @@
                     </el-form-item>
                     <el-form-item prop="npm.main" label="路径">
                         <upload-file-field v-model="form.npm.main"
-                            :data="{path: `materials/${form.npm.package}`, rename: false}" accept=".js" />
+                            :data="{path: `materials/${form.npm.package}`, rename: false}" accept=".js"
+                            :before-upload="onNpmMainBeforeUpload" />
+                    </el-form-item>
+                    <el-form-item prop="status" label="状态">
+                        <el-switch v-model="form.status" active-value="enabled" inactive-value="disabled" />
                     </el-form-item>
                 </el-form>
                 <div slot="footer" :class="$style['drawer__footer']">
@@ -63,15 +90,25 @@
 
 <script>
     import {
-        apiLogicflowAdd,
-        apiLogicflowUpdate,
-        apiLogicflowList,
-        apiLogicflowRemove
-    } from '../../services/logicflow';
-    import {
-        genid
-    } from '../../utils/utils';
+        apiMaterialAdd,
+        apiMaterialUpdate,
+        apiMaterialList,
+        apiMaterialRemove
+    } from '../../services/material';
     import UploadFileField from '../../components/upload-file-field/index.vue';
+
+    // 表单默认值
+    const formDefaultValue = {
+        componentName: '', // 物料名称
+        title: '', // 物料中文名
+        icon: '', // 物料图标
+        screenshot: '', // 物料缩略图
+        npm: {
+            package: '', // 物料库名,
+            main: '' // 物料路径
+        },
+        status: 'enabled' // 状态
+    };
 
     export default {
         name: 'ComponentFlowList',
@@ -79,19 +116,8 @@
             UploadFileField
         },
         data() {
-            const formDefaultValue = {
-                componentName: '', // 物料名称
-                title: '', // 物料中文名
-                icon: '', // 物料图标
-                screenshot: '', // 物料缩略图
-                npm: {
-                    package: '', // 物料库名,
-                    main: '' // 物料路径
-                }
-            };
-
             return {
-                formVisible: true,
+                formVisible: false,
                 action: '',
                 actionMap: {
                     add: '新建',
@@ -102,13 +128,29 @@
                 },
                 formDefaultValue,
                 rules: {
-                    name: [{
+                    componentName: [{
                         required: true,
-                        message: '物料名称不能为空'
+                        message: '名称不能为空'
                     }],
                     title: [{
                         required: true,
-                        message: '物料标题不能为空'
+                        message: '标题不能为空'
+                    }],
+                    icon: [{
+                        required: true,
+                        message: '图标不能为空'
+                    }],
+                    screenshot: [{
+                        required: true,
+                        message: '缩略图不能为空'
+                    }],
+                    'npm.package': [{
+                        required: true,
+                        message: '库名不能为空'
+                    }],
+                    'npm.main': [{
+                        required: true,
+                        message: '路径不能为空'
                     }]
                 },
                 tableData: [],
@@ -134,21 +176,12 @@
                 try {
                     this.tableLoading = true;
 
-                    const response = await apiLogicflowList({
+                    const response = await apiMaterialList({
                         pageNo: this.pagination.pageNo,
                         pageSize: this.pagination.pageSize
                     });
 
-                    this.tableData = response.list.map(row => {
-                        row.subLogicList = row.dsl.cells.filter(i => i.data && i.shape === 'imove-start')
-                            .map(i => {
-                                i.data.id = genid();
-
-                                return i.data;
-                            });
-
-                        return row;
-                    });
+                    this.tableData = response.list;
                     this.pagination = {
                         total: response.total,
                         pageNo: response.pageNo,
@@ -160,19 +193,6 @@
                     this.tableLoading = false;
                 }
             },
-            // 编排
-            gotoRow(index, rows) {
-                const {
-                    id
-                } = rows[index];
-
-                this.$router.push({
-                    name: 'logicDesigner',
-                    query: {
-                        id
-                    }
-                });
-            },
             // 编辑
             editRow(index, rows) {
                 const row = rows[index];
@@ -181,8 +201,7 @@
                 this.formVisible = true;
                 this.form = {
                     id: row.id,
-                    name: row.name,
-                    title: row.title,
+                    ...row
                 };
             },
             // 删除
@@ -198,7 +217,7 @@
                 });
 
                 try {
-                    await apiLogicflowRemove({
+                    await apiMaterialRemove({
                         id
                     });
 
@@ -214,8 +233,8 @@
                     ...this.formDefaultValue
                 };
 
-                if (this.$refs['addForm']) {
-                    this.$refs['addForm'].resetFields();
+                if (this.$refs['materialForm']) {
+                    this.$refs['materialForm'].resetFields();
                 }
             },
             onAdd() {
@@ -227,30 +246,24 @@
             // 新增物料
             handleAddSubmit() {
                 // 默认物料数据
-                const defaultLogicFlowDsl = {
-                    cells: []
-                };
-
-                this.$refs['addForm'].validate(async (valid) => {
+                this.$refs['materialForm'].validate(async (valid) => {
                     if (valid) {
                         let params;
 
                         if (this.action === 'add') {
                             params = {
                                 ...this.form,
-                                dsl: defaultLogicFlowDsl
                             };
 
-                            await apiLogicflowAdd(params);
+                            await apiMaterialAdd(params);
                         }
-
 
                         if (this.action === 'edit') {
                             params = {
                                 ...this.form
                             };
 
-                            await apiLogicflowUpdate(params);
+                            await apiMaterialUpdate(params);
                         }
 
                         this.fetchTableData();
@@ -263,6 +276,18 @@
 
                         return false;
                     }
+                });
+            },
+            // 上传物料前检查
+            async onNpmMainBeforeUpload() {
+                return new Promise((resolve, reject) => {
+                    this.$refs['materialForm'].validateField('npm.package', err => {
+                        if (err) {
+                            return reject();
+                        }
+
+                        resolve();
+                    });
                 });
             }
         },

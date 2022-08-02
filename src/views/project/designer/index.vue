@@ -143,6 +143,9 @@
         apiProjectQuery,
         apiProjectPublish
     } from '../../../services/project';
+    import {
+        apiMaterialList
+    } from '../../../services/material';
 
     export default {
         name: 'Designer',
@@ -294,9 +297,21 @@
             // 加载物料库
             async fetchMaterials() {
                 try {
-                    const materials = (await import(`./materials/index.js`)).default;
+                    const {
+                        list: materials = []
+                    } = await apiMaterialList({
+                        pageNo: 1,
+                        pageSize: 999
+                    });
 
-                    this.materials = materials;
+                    this.materials = materials.map(material => {
+                        material.package = material.npm.package;
+                        material.urls = [material.npm.main];
+
+                        delete material.npm;
+
+                        return material;
+                    });
 
                     return Promise.resolve(materials);
                 } catch (e) {
