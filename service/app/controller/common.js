@@ -12,12 +12,15 @@ class CommonController extends Controller {
     async upload() {
         const ctx = this.ctx;
         const stream = await ctx.getFileStream();
-        const { path: dir = '' } = stream.fields;
+        const { path: dir = '', rename = true } = stream.fields;
 
         const upload = 'public/upload/';
         const extname = path.extname(stream.filename);
-        const filename = shortid.generate() + extname;
-        const dirpath = upload + dir.replace(/^\/|\/$/g, '');
+        const filename = !rename || rename === 'false' ?
+            stream.filename :
+            shortid.generate() + extname;
+
+        const dirpath = upload + dir.replace(/^[\/\.]*|\/$/g, '');
 
         // 文件处理，上传到云存储等等
         let result;
@@ -52,8 +55,8 @@ class CommonController extends Controller {
             ctx.body = {
                 code: 1,
                 data: null,
-                message: '上传失败'
-            }
+                message: '上传失败',
+            };
         }
     }
 }

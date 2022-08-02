@@ -32,42 +32,24 @@
         <el-drawer :title="formTitle" :visible.sync="formVisible" destroy-on-close :size="500" direction="rtl">
             <div :class="$style['drawer__content']">
                 <el-form ref="addForm" :model="form" :rules="rules" size="mini" label-width="120px">
-                    <el-form-item prop="componentName" label="物料名称">
+                    <el-form-item prop="componentName" label="名称">
                         <el-input v-model="form.componentName"></el-input>
                     </el-form-item>
-                    <el-form-item prop="title" label="物料中文名">
+                    <el-form-item prop="title" label="中文名">
                         <el-input v-model="form.title"></el-input>
                     </el-form-item>
-                    <el-form-item prop="icon" label="物料图标">
+                    <el-form-item prop="icon" label="图标">
                         <el-input v-model="form.icon"></el-input>
                     </el-form-item>
-                    <el-form-item prop="screenshot" label="物料缩略图">
-                        <el-input v-model="form.screenshot"></el-input>
-                        <el-upload action="/api/common/upload" list-type="picture-card" name="files" :show-file-list="false">
-                            <i slot="default" class="el-icon-plus"></i>
-                            <div slot="file" slot-scope="{file}">
-                                <img class="el-upload-list__item-thumbnail" :src="file.url" alt="">
-                                <span class="el-upload-list__item-actions">
-                                    <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
-                                        <i class="el-icon-zoom-in"></i>
-                                    </span>
-                                    <span v-if="!disabled" class="el-upload-list__item-delete"
-                                        @click="handleDownload(file)">
-                                        <i class="el-icon-download"></i>
-                                    </span>
-                                    <span v-if="!disabled" class="el-upload-list__item-delete"
-                                        @click="handleRemove(file)">
-                                        <i class="el-icon-delete"></i>
-                                    </span>
-                                </span>
-                            </div>
-                        </el-upload>
+                    <el-form-item prop="screenshot" label="缩略图">
+                        <upload-file-field v-model="form.screenshot" />
                     </el-form-item>
-                    <el-form-item prop="npm.package" label="物料库名">
+                    <el-form-item prop="npm.package" label="库名">
                         <el-input v-model="form.npm.package"></el-input>
                     </el-form-item>
-                    <el-form-item prop="npm.main" label="物料路径">
-                        <el-input v-model="form.npm.main"></el-input>
+                    <el-form-item prop="npm.main" label="路径">
+                        <upload-file-field v-model="form.npm.main"
+                            :data="{path: `materials/${form.npm.package}`, rename: false}" accept=".js" />
                     </el-form-item>
                 </el-form>
                 <div slot="footer" :class="$style['drawer__footer']">
@@ -89,9 +71,13 @@
     import {
         genid
     } from '../../utils/utils';
+    import UploadFileField from '../../components/upload-file-field/index.vue';
 
     export default {
         name: 'ComponentFlowList',
+        components: {
+            UploadFileField
+        },
         data() {
             const formDefaultValue = {
                 componentName: '', // 物料名称
