@@ -6,6 +6,7 @@ import store from './store'
 import ElementUI from 'element-ui';
 import draggable from 'vuedraggable';
 import ComponentTemplate from './components/component-template';
+import EventEmitter from 'eventemitter3';
 
 import 'element-ui/lib/theme-chalk/index.css';
 
@@ -16,6 +17,8 @@ Vue.use(ElementUI);
 Vue.component('draggable', draggable);
 // 注册组件模板
 Vue.component(ComponentTemplate.name, ComponentTemplate);
+
+window.EventEmitter = EventEmitter;
 
 new Vue({
     router,

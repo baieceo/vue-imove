@@ -158,6 +158,12 @@
                     }
                 };
 
+                if (!window.logicFlowsMap) {
+                    window.logicFlowsMap = {};
+                }
+
+                window.logicFlowsMap[logicFlow.id] = logicFlow;
+
                 this.currentNode.logicFlows.push(logicFlow);
             },
             // 移动逻辑

@@ -6,5 +6,7 @@ const logic = new Logic({ dsl });
 
 // use plugins here
 
+// use custom code
+
 export default logic;
 `;

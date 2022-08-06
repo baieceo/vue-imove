@@ -6,10 +6,28 @@
 </template>
 
 <script>
-    // 逻辑流触发
-    const logicFlowsTrigger = (logicFlows, ctx) => {
-        if (!logicFlows.length) return false;
+    import {
+        compileForOnline
+    } from '@/views/logic/packages/compile-code/src';
 
+    // 生成自定义代码
+    const generateCustomCode = (logicId) => {
+        return `
+  
+      if (!window.logicFlowsMap) {
+        window.logicFlowsMap = {};
+      }
+  
+      if (!window.logicFlowsMap['${logicId}']) {
+        window.logicFlowsMap['${logicId}'] = logic;
+      };
+
+      return Promise.resolve(logic);
+    `;
+    };
+
+    // 逻辑流触发
+    const logicFlowsTrigger = (logicFlows) => {
         try {
             logicFlows.forEach(logicFlow => {
                 const {
@@ -26,7 +44,7 @@
                 } = data;
 
                 if (trigger && window.logicFlowsMap && window.logicFlowsMap[logicFlow.id]) {
-                    window.logicFlowsMap[logicFlow.id].invoke(trigger).call(ctx);
+                    window.logicFlowsMap[logicFlow.id].invoke(trigger);
                 }
             });
 
@@ -52,16 +70,18 @@
                 return this.$vnode.key;
             }
         },
-        mounted() {
+        async mounted() {
             const node = this.findNodeSchemaById(this.$vnode.key);
             const {
                 events = [], logicFlows = []
             } = node;
 
             // 自定义挂载事件
-            const customMountedEvents = events.filter(event => event.name === 'event-custom' && event.value.type ===
+            const customMountedEvents = events.filter(event => event.name === 'event-custom' && event
+                .value.type ===
                 'mounted');
 
+            // 执行自定义挂载事件
             customMountedEvents.forEach(event => {
                 const {
                     code = 'function () {}'
@@ -73,9 +93,45 @@
             // 主动逻辑
             const activeLogicFlows = logicFlows.filter(logicFlow => logicFlow.type === 'active');
 
-            logicFlowsTrigger(activeLogicFlows, this);
+            // 设计态：注册逻辑流
+            if (this.env === 'design') {
+                await this.registerLogicFlows();
+            }
+
+            logicFlowsTrigger(activeLogicFlows)
         },
         methods: {
+            // 注册逻辑流
+            registerLogicFlows() {
+                const node = this.findNodeSchemaById(this.$vnode.key);
+                const {
+                    logicFlows = []
+                } = node;
+                const logicFlowsQueue = [];
+
+                // 注册逻辑
+                logicFlows.forEach(logicFlow => {
+                    if (!window.logicFlowsMap) {
+                        window.logicFlowsMap = {};
+                    }
+
+                    if (!window.logicFlowsMap[logicFlow.id]) {
+                        // 编译代码
+                        const logicFlowCode = compileForOnline(
+                            logicFlow.logic.source.dsl, {}, {
+                                customCode: {
+                                    'index.js': generateCustomCode(logicFlow.id),
+                                },
+                            }
+                        );
+
+                        logicFlowsQueue.push((new Function(logicFlowCode))());
+                    }
+                });
+
+                return Promise.all(logicFlowsQueue);
+            },
+            // 通过id查找节点schema
             findNodeSchemaById(id) {
                 const projectSchema = this.getProjectSchema();
                 const {
@@ -100,9 +156,11 @@
 
                 return node;
             },
+            // 执行代码
             exec(code) {
                 new Function(`return ${code}`)().call(this);
             },
+            // 点击事件
             onClick() {
                 if (this.env === 'design') {
                     return false;
@@ -128,7 +186,7 @@
                 // 被动逻辑
                 const passiveLogicFlows = logicFlows.filter(logicFlow => logicFlow.type === 'passive');
 
-                logicFlowsTrigger(passiveLogicFlows, this);
+                logicFlowsTrigger(passiveLogicFlows);
             }
         }
     }

@@ -17,6 +17,8 @@ import simplifyDSL from './simplifyDSL';
 
 const INSERT_DSL_COMMENT = '// define dsl here';
 const INSERT_NODE_FNS_COMMENT = '// define nodeFns here';
+const INSERT_USE_CUSTOM_CODE_START = '// use custom code start';
+const INSERT_USE_CUSTOM_CODE_END = '// use custom code end';
 const importRegex = /import\s([\s\S]*?)\sfrom\s('|")((@\w[\w\.\-]+\/)?(\w[\w\.\-\/]+))\2/gm;
 const virtualSourceNode = {
     id: 'virtual-imove-start',
@@ -106,13 +108,23 @@ const compileNodeFnsMap = (dsl) => {
     return `const nodeFns = {\n  ${kvs.join(',\n  ')}\n}`;
 };
 
-const compile = (dsl, mockInput) => {
+const compile = (dsl, mockInput, options = { customCode: { 'index.js': '' } }) => {
     const startNode = findStartNode(dsl);
     const mockNode = getNextNode(startNode, dsl);
-    return makeCode(mockNode, mockInput)
+
+    let output = makeCode(mockNode, mockInput)
         .replace(INSERT_DSL_COMMENT, compileSimplifiedDSL(dsl))
         .replace(INSERT_NODE_FNS_COMMENT, compileNodeFnsMap(dsl))
         .replace('$TRIGGER$', startNode.data.trigger);
+
+    const start = output.substring(0, output.indexOf(INSERT_USE_CUSTOM_CODE_START));
+    const end = output.substring(output.indexOf(INSERT_USE_CUSTOM_CODE_END));
+
+    if (options.customCode['index.js']) {
+        output = start + options.customCode['index.js'] + end;
+    }
+
+    return output;
 };
 
 export default compile;

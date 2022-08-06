@@ -16,7 +16,7 @@ const makeCode = (mockNode, mockInput) => `
     .replace(/export\s+default/, '')
     .replace(
       `import EventEmitter from 'eventemitter3';`,
-      `const EventEmitter = (await import('https://jspm.dev/eventemitter3')).default;`,
+      `const EventEmitter = window.EventEmitter || (await import('https://jspm.dev/eventemitter3')).default;`,
     )}
 
   // DSL
@@ -61,11 +61,14 @@ const makeCode = (mockNode, mockInput) => `
   // instantiation and invoke
   const logic = new Logic({ dsl });
   logic.use(mockPlugin);
+
+  // use custom code start
   logic.invoke('$TRIGGER$', {}, (pipe) => {
     const ctx = logic._getUnsafeCtx();
     const context = ctx.getContext();
     window.dispatchEvent(new CustomEvent('iMoveOnlineExecEnds', {detail: {pipe, context}}));
   });
+  // use custom code end
 })().catch(err => {
   console.error(err.message);
   window.dispatchEvent(new CustomEvent('iMoveOnlineExecEnds', {detail: {error: {message: err.message}}}));
