@@ -2,10 +2,10 @@
     "type": "object",
     "required": [],
     "properties": {
-        "text": {
-            "title": "文本",
+        "pageTitle": {
+            "title": "页面标题",
             "type": "string",
-            "default": "按钮",
+            "default": "",
             "apiAutoFetch": false,
             "ui:options": {
                 "placeholder": "请输入"
@@ -13,6 +13,6 @@
         }
     },
     "ui:order": [
-        "text"
+        "pageTitle"
     ]
 }

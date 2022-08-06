@@ -128,7 +128,7 @@ class LogicFlowController extends Controller {
 
         list = list.map((item) => ({
             ...item,
-            createTime: moment(item.createTime).format('YYYY/MM/DD HH:mm:ss'),
+            createTime: moment(new Date(item.createTime)).format('YYYY/MM/DD hh:mm:ss'),
         }));
 
         ctx.body = {

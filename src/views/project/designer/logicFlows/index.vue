@@ -45,7 +45,7 @@
                             <div :class="$style['card__item-body']">
                                 <el-select size="mini" :value="logicItem.logic.id"
                                     @change="(logicId) => onLogicIdChange(logicId, logicIndex)">
-                                    <el-option v-for="itme in logicItem" :key="itme.title" :label="itme.title"
+                                    <el-option v-for="itme in logicFlows" :key="itme.title" :label="itme.title"
                                         :value="itme.id" />
                                 </el-select>
                             </div>
@@ -140,7 +140,11 @@
                     ...this.types.find(e => e.name === command)
                 };
                 const uuid = `logicFlow_${genid()}`;
+                
+                logicFlow.type = logicFlow.name;
 
+                delete logicFlow.name;
+                
                 logicFlow.id = uuid;
                 logicFlow.key = uuid;
                 logicFlow.logic = {

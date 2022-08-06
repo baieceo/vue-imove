@@ -64,9 +64,9 @@
                             <div :class="$style['simulator__canvas']">
                                 <draggable v-loading="loading" :group="{ name: 'simulator' }" style="height: 100%;">
                                     <template v-if="!loading">
-                                        <component v-for="component in projectSchema.componentsTree"
-                                            :is="component.componentName" :key="component.id" v-bind="component.props"
-                                            :children="component.children" />
+                                        <component-template v-for="component in projectSchema.componentsTree"
+                                            :component-name="component.componentName" :key="component.id"
+                                            v-bind="component.props" :children="component.children" />
                                     </template>
                                 </draggable>
                             </div>
@@ -83,7 +83,7 @@
             <el-aside :class="$style.setterPane" width="350px">
                 <el-tabs v-model="setterTabName" style="height: 100%">
                     <!-- 属性 start -->
-                    <el-tab-pane label="属性" name="props">
+                    <el-tab-pane label="属性" name="setters">
                         <el-scrollbar style="height: calc(100vh - 160px);">
                             <div v-if="currentNode.id">
                                 <Setters />
@@ -132,7 +132,8 @@
 <script>
     import Vue from 'vue';
     import {
-        genid
+        genid,
+        importScript
     } from '../../../utils/utils';
     import Setters from './setters/index.vue';
     import Events from './events/index.vue';
@@ -158,7 +159,8 @@
         provide() {
             return {
                 env: 'design',
-                getCurrentNode: () => this.currentNode
+                getCurrentNode: () => this.currentNode,
+                getProjectSchema: () => this.projectSchema
             }
         },
         data() {
@@ -184,7 +186,7 @@
                 // schema可见
                 schemaVisible: false,
                 // setter激活标签
-                setterTabName: 'events',
+                setterTabName: 'setters',
             }
         },
         computed: {
@@ -200,7 +202,9 @@
 
                 await this.fetchMaterials();
 
-                await this.registerMaterials();
+                await this.fetchData();
+
+                // await this.registerMaterials();
 
                 this.loading = false;
             } catch (e) {
@@ -308,8 +312,6 @@
                         material.package = material.npm.package;
                         material.urls = [material.npm.main];
 
-                        delete material.npm;
-
                         return material;
                     });
 
@@ -318,13 +320,53 @@
                     return Promise.reject(e);
                 }
             },
-            // 注册物料库
-            registerMaterials() {
-                try {
-                    const materials = this.materials.map(component => Vue.component(component.componentName, () =>
-                        import(`${component.package}`)));
+            // 获取并注册组件物料列表
+            async fetchComponentsMap() {
+                const queue = [];
+                const {
+                    componentsMap
+                } = this.projectSchema;
+                const materials = [...this.materials];
 
-                    return Promise.all(materials);
+                try {
+                    componentsMap.forEach(component => {
+                        component.urls.forEach(async url => {
+                            const material = materials.find(item => item.npm.main === url);
+
+                            if (material) {
+                                if (!this.$root.$options.components[material.componentName]) {
+                                    queue.push(Vue.component(material.componentName, () =>
+                                        importScript(url)));
+                                }
+                            }
+                        });
+                    });
+
+                    return Promise.all(queue);
+                } catch (e) {
+                    console.error('注册物料错误', e);
+
+                    return Promise.reject(e);
+                }
+            },
+            // 获取并注册物料
+            fetchMaterial(component) {
+                const queue = [];
+                const materials = [...this.materials];
+
+                try {
+                    component.urls.forEach(async url => {
+                            const material = materials.find(item => item.npm.main === url);
+
+                            if (material) {
+                                if (!this.$root.$options.components[material.componentName]) {
+                                    queue.push(Vue.component(material.componentName, () =>
+                                        importScript(url)));
+                                }
+                            }
+                    });
+                        
+                    return Promise.all(queue);
                 } catch (e) {
                     console.error('注册物料错误', e);
 
@@ -347,19 +389,33 @@
             },
             // 克隆物料
             async onCloneMaterial(material) {
+                const {
+                    componentsMap = []
+                } = this.projectSchema;
+
+                if (!componentsMap.find(comp => comp.componentName === material.componentName)) {
+                    this.projectSchema.componentsMap.push({
+                        package: material.npm.package,
+                        componentName: material.componentName,
+                        urls: material.urls
+                    });
+
+                    await this.fetchMaterial(material);
+                }
+
                 // 获取物料实例
                 const component = this.$root.$options.components[material.componentName];
-                const componentData = {
-                    ...(await component()).default
-                };
+                const componentData = await component();
 
                 // 解析物料属性
                 const props = {};
 
                 for (let key in componentData.props) {
-                    props[key] = [Object, Array].includes(componentData.props[key].type) ?
-                        componentData.props[key].default() :
-                        componentData.props[key].default;
+                    if (componentData.props[key].default) {
+                        props[key] = [Object, Array].includes(componentData.props[key].type) ?
+                            componentData.props[key].default() :
+                            componentData.props[key].default;
+                    }
                 }
 
                 this.cloneMaterial = {
@@ -512,9 +568,10 @@
                     this.$refs['materialsTree'].setCurrentKey(value);
                 });
             },
+            'projectSchema.componentsMap': 'fetchComponentsMap',
             '$route.query.id': {
                 handler: 'fetchData',
-                immediate: true
+                // immediate: true
             },
             schemaVisible(value) {
                 if (value) {
@@ -527,12 +584,6 @@
         }
     }
 </script>
-
-<style>
-    .current-node {
-        box-shadow: 0 0 0 1px rgba(25, 137, 250, .8);
-    }
-</style>
 
 <style lang="scss" module>
     .pageContainer {
