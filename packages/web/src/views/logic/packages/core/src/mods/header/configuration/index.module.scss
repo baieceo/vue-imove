@@ -1,0 +1,17 @@
+.container {
+    padding: 0 0 0 20px;
+     :global {
+        .el-icon-setting {
+            color: rgba(0, 0, 0, .85);
+        }
+    }
+}
+
+.editModal {
+    /* width: 450px;
+     :global {
+        .ant-form-item:last-child {
+            margin-bottom: 0;
+        }
+    } */
+}

@@ -1,0 +1,18 @@
+{
+    "type": "object",
+    "required": [],
+    "properties": {
+        "pageTitle": {
+            "title": "页面标题",
+            "type": "string",
+            "default": "",
+            "apiAutoFetch": false,
+            "ui:options": {
+                "placeholder": "请输入"
+            }
+        }
+    },
+    "ui:order": [
+        "pageTitle"
+    ]
+}

@@ -1,0 +1,67 @@
+.container {
+    width: 100%;
+    height: calc(100vh - 60px);
+    .formGenerator {
+        position: relative;
+        height: 100%;
+        border-bottom: 1px solid #ebeef5;
+         :global {
+            .formGeneratorContainer,
+            .formGeneratorContentWrap {
+                height: 100%;
+            }
+            .formToolBarWrap,
+            .formGeneratorContentBox,
+            .formGeneratorRightForm {
+                margin-top: 38px;
+            }
+            .formGeneratorContentWrap {
+                padding-left: 300px;
+            }
+            .formToolBarWrap {
+                width: 300px;
+            }
+            .formGeneratorToolBarBoxClass {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+            .formGeneratorContentBox {
+                display: flex;
+                flex-direction: column;
+                height: calc(100% - 38px);
+                background-color: #f5f5f5;
+            }
+            .formGeneratorContentFormClass {
+                flex: 1;
+                overflow-y: auto;
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+            .formGeneratorRightForm {
+                padding-right: 20px;
+                .el-tabs__content {
+                    padding-top: 20px;
+                }
+                .el-form {
+                    padding-right: 0;
+                }
+            }
+            .formGeneratorDragArea {
+                overflow-x: hidden;
+            }
+        }
+    }
+    .formGeneratorContentToolBar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 20px;
+        position: absolute;
+        top: -38px;
+        left: -300px;
+        right: -380px;
+        z-index: 10;
+        background: #FFF;
+        border-bottom: 1px solid #EEE;
+    }
+}

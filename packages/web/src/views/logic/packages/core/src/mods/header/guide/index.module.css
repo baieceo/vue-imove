@@ -1,0 +1,80 @@
+.guideContainer {
+  height: 650px;
+}
+
+.guideContainer :global .tabPane {
+  height: 600px;
+  overflow-y: auto;
+  line-height: 1.5715;
+}
+
+.guideContainer :global .tabPane::-webkit-scrollbar {
+  width: 0;
+}
+
+.guideContainer :global .tabPane h1,
+.guideContainer :global .tabPane h2,
+.guideContainer :global .tabPane h3,
+.guideContainer :global .tabPane h4,
+.guideContainer :global .tabPane h5,
+.guideContainer :global .tabPane h6 {
+  margin-bottom: .5em;
+  font-weight: 500;
+}
+
+.guideContainer :global .tabPane h2 {
+  font-size: 1.5em;
+}
+
+.guideContainer :global .tabPane h3 {
+  display: block;
+  font-size: 1.17em;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+}
+
+.guideContainer :global .tabPane ol,
+.guideContainer :global .tabPane ul,
+.guideContainer :global .tabPane dl {
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
+.guideContainer :global .tabPane ol {
+  display: block;
+  list-style-type: decimal;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  padding-inline-start: 40px;
+}
+
+.guideContainer :global .tabPane ol li {
+  list-style-type: decimal;
+}
+
+.guideContainer :global .tabPane a {
+  color: #1890ff;
+}
+
+.guideContainer :global .tabPane p {
+  margin-bottom: 1em;
+}
+
+.guideContainer :global .tabPane img {
+  margin: 10px 0;
+}
+
+.guideContainer :global .tabPane pre {
+  color: #d4deec;
+  font-size: 14px;
+  line-height: 20px;
+  padding: 10px 10px;
+  background-color: #001628;
+  border-radius: 3px;
+  border: 1px solid #00070e;
+  font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}

@@ -1,0 +1,7 @@
+.depsInfoModalContent {
+  padding-top: 20px;
+}
+
+.modal :global .el-dialog__body {
+  padding: 0 0 10px;
+}
